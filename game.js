@@ -106,7 +106,7 @@ function initGame() {
 
 function startLesson(lessonName) {
     menuArea.style.display = "none";
-    gameArea.style.display = "block";
+    gameArea.style.display = "flex";
     subtitle.innerText = `Currently Exploring: ${lessonName}`;
 
     currentQuizData = shuffleArray([...allLessonsData[lessonName]]);
@@ -117,7 +117,7 @@ function startLesson(lessonName) {
 
 function startCumulativeLesson(lessonName, lessonNames) {
     menuArea.style.display = "none";
-    gameArea.style.display = "block";
+    gameArea.style.display = "flex";
     subtitle.innerText = `Cumulative Review up to: ${lessonName}`;
 
     const pool = lessonNames.flatMap(name => allLessonsData[name]);
@@ -130,7 +130,7 @@ function startCumulativeLesson(lessonName, lessonNames) {
 
 function returnToMenu() {
     gameArea.style.display = "none";
-    menuArea.style.display = "flex";
+    menuArea.style.display = "grid";
     subtitle.innerText = "Select your map to start the voyage!";
 }
 

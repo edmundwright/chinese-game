@@ -5,40 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pinyin Pirate Treasure Match</title>
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
         body {
             font-family: 'Comic Sans MS', cursive, sans-serif;
             background-color: #e0f7fa;
-            text-align: center;
-            padding: 20px;
+            padding: 10px;
+            box-sizing: border-box;
         }
         #game-container {
             background-color: white;
             border-radius: 15px;
-            padding: 30px;
-            max-width: 650px;
+            padding: 12px 20px 12px;
+            width: calc(100% - 8px);
+            max-width: none;
             margin: 0 auto;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             border: 4px solid #00acc1;
+            height: calc(100vh - 20px - 8px);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        h1 { color: #ff8f00; font-size: 28px; margin-bottom: 10px; }
-        .subtitle { color: #00838f; font-size: 18px; margin-bottom: 30px; }
-        
-        /* Menu Styles */
-        #menu-area { display: flex; flex-direction: column; gap: 12px; }
-        .lesson-group { display: flex; flex-direction: column; gap: 0; border: 3px solid #00acc1; border-radius: 12px; overflow: hidden; }
+        #header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            flex-shrink: 0;
+            margin-bottom: 10px;
+        }
+        h1 { color: #ff8f00; font-size: 22px; margin: 0; white-space: nowrap; }
+        .subtitle { color: #00838f; font-size: 16px; margin: 0; }
+
+        /* ── Menu ── */
+        #menu-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 10px;
+            flex: 1;
+            overflow-y: auto;
+            align-content: start;
+        }
+        .lesson-group {
+            display: flex;
+            flex-direction: column;
+            border: 3px solid #00acc1;
+            border-radius: 12px;
+            overflow: hidden;
+        }
         .lesson-group-label {
             background-color: #00838f;
             color: white;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             padding: 6px 12px;
             text-align: left;
         }
         .lesson-group-btns { display: flex; }
         .lesson-btn {
             flex: 1;
-            padding: 14px 8px;
-            font-size: 16px;
+            padding: 12px 8px;
+            font-size: 15px;
             font-family: inherit;
             border: none;
             color: #004d40;
@@ -51,15 +82,72 @@
         .lesson-btn-cumulative { background-color: #80cbc4; }
         .lesson-btn-cumulative:hover { background-color: #4db6ac; }
         .lesson-btn-cumulative:disabled { opacity: 0.4; cursor: not-allowed; }
-        
-        /* Game Area Styles */
-        #game-area { display: none; }
-        
+
+        /* ── Game Area ── */
+        #game-area {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            gap: 8px;
+        }
+
+        /* Voyage Path */
+        #voyage-path {
+            background: linear-gradient(to bottom, #81d4fa, #29b6f6 50%, #0288d1);
+            border-radius: 12px;
+            position: relative;
+            height: 52px;
+            border: 3px solid #01579b;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .voyage-milestone {
+            position: absolute;
+            font-size: 26px;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+        }
+        #voyage-ship {
+            position: absolute;
+            font-size: 28px;
+            top: 50%;
+            left: 5%;
+            transform: translate(-50%, -50%);
+            transition: left 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 2;
+        }
+
+        /* Two-column game layout */
+        #game-columns {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Left column: character + feedback */
+        #game-left {
+            width: 32%;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #f0fbfc;
+            border-radius: 12px;
+            border: 2px solid #b2ebf2;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
         #character-area {
-            font-size: 70px;
-            margin: 15px 0;
-            min-height: 120px;
-            display: inline-block;
+            font-size: 80px;
+            line-height: 1;
+            text-align: center;
         }
 
         @keyframes pirate-dance {
@@ -78,70 +166,20 @@
         }
         .anim-dizzy { animation: dizzy-drop 1s ease-in-out forwards; }
 
-        .question { font-size: 22px; margin-bottom: 20px; color: #37474f; min-height: 60px; }
-        .options { display: flex; flex-direction: column; gap: 12px; }
-        
-        .opt-btn {
-            padding: 15px;
-            font-size: 18px;
-            font-family: inherit;
-            background-color: #ffca28;
-            border: 2px solid #ff8f00;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-        }
-        .opt-btn:hover { background-color: #ffb300; }
-        .opt-btn:active { transform: scale(0.98); }
-        .opt-btn:disabled { opacity: 0.8; cursor: not-allowed; transform: none; }
-        
-        .action-btn {
-            background-color: #26c6da;
-            border: 2px solid #00838f;
-            color: #e0f2f1;
+        #feedback {
+            font-size: 20px;
             font-weight: bold;
-            padding: 15px;
-            font-size: 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 20px;
+            min-height: 28px;
+            text-align: center;
         }
-        .action-btn:hover { background-color: #00acc1; }
-        
-        #next-btn { display: none; width: 60%; margin-left: auto; margin-right: auto; }
-        #back-btn { background-color: #ff7043; border-color: #d84315; width: 60%; margin-left: auto; margin-right: auto; }
-        #back-btn:hover { background-color: #f4511e; }
-        
-        #feedback { font-size: 22px; font-weight: bold; margin-top: 15px; min-height: 30px; }
-        .progress { font-size: 16px; color: #546e7a; font-weight: bold; }
-        #error-msg { color: red; font-weight: bold; }
 
-        /* Voyage Path */
-        #voyage-path {
-            background: linear-gradient(to bottom, #81d4fa, #29b6f6 50%, #0288d1);
-            border-radius: 12px;
-            margin: 8px 0;
-            position: relative;
-            height: 68px;
-            border: 3px solid #01579b;
-            overflow: hidden;
-        }
-        .voyage-milestone {
-            position: absolute;
-            font-size: 28px;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
-        }
-        #voyage-ship {
-            position: absolute;
-            font-size: 32px;
-            top: 50%;
-            left: 5%;
-            transform: translate(-50%, -50%);
-            transition: left 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            z-index: 2;
+        /* Right column: status + question + options + buttons */
+        #game-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 0;
         }
 
         /* Status Bar */
@@ -149,23 +187,81 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 12px;
+            padding: 5px 12px;
             background-color: #f9fbe7;
             border-radius: 10px;
             border: 2px solid #c5e1a5;
-            margin: 8px 0;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
+            flex-shrink: 0;
         }
-        #streak-display { color: #e65100; min-width: 80px; text-align: center; font-size: 18px; }
+        #streak-display { color: #e65100; min-width: 80px; text-align: center; font-size: 17px; }
         #coins-display { color: #00838f; }
+
+        .progress { font-size: 15px; color: #546e7a; font-weight: bold; flex-shrink: 0; }
+
+        .question {
+            font-size: 20px;
+            color: #37474f;
+            flex-shrink: 0;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            flex: 1;
+            align-content: stretch;
+        }
+
+        .opt-btn {
+            padding: 0;
+            font-size: 18px;
+            font-family: inherit;
+            background-color: #ffca28;
+            border: 2px solid #ff8f00;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+        }
+        .opt-btn:hover { background-color: #ffb300; }
+        .opt-btn:active { transform: scale(0.98); }
+        .opt-btn:disabled { opacity: 0.8; cursor: not-allowed; transform: none; }
+
+        #action-btns {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            background-color: #26c6da;
+            border: 2px solid #00838f;
+            color: #e0f2f1;
+            font-weight: bold;
+            padding: 10px 16px;
+            font-size: 17px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .action-btn:hover { background-color: #00acc1; }
+
+        #next-btn { display: none; flex: 1; }
+        #back-btn { background-color: #ff7043; border-color: #d84315; flex: 1; }
+        #back-btn:hover { background-color: #f4511e; }
+
+        #error-msg { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <h1>🏴‍☠️ Pinyin Pirate Match 🏴‍☠️</h1>
-    <div class="subtitle" id="subtitle">Select your map to start the voyage!</div>
+    <div id="header">
+        <h1>🏴‍☠️ Pinyin Pirate Match 🏴‍☠️</h1>
+        <div class="subtitle" id="subtitle">Select your map to start the voyage!</div>
+    </div>
 
     <div id="error-msg"></div>
 
@@ -184,22 +280,29 @@
             <div id="voyage-ship">⛵</div>
         </div>
 
-        <div id="status-bar">
-            <div id="streak-display"></div>
-            <div id="coins-display">🪙 <span id="score-count">0</span></div>
+        <div id="game-columns">
+            <div id="game-left">
+                <div id="character-area">🏴‍☠️</div>
+                <div id="feedback"></div>
+            </div>
+
+            <div id="game-right">
+                <div id="status-bar">
+                    <div id="streak-display"></div>
+                    <div id="coins-display">🪙 <span id="score-count">0</span></div>
+                </div>
+
+                <div class="progress">Question <span id="current-q-num">0</span> of <span id="total-q-num">0</span></div>
+
+                <div id="question-area" class="question"></div>
+                <div id="options-area" class="options"></div>
+
+                <div id="action-btns">
+                    <button id="next-btn" class="action-btn" onclick="loadNextQuestion()">Next Question ➡️</button>
+                    <button id="back-btn" class="action-btn" onclick="returnToMenu()">🗺️ Back to Map</button>
+                </div>
+            </div>
         </div>
-
-        <div class="progress">Question <span id="current-q-num">0</span> of <span id="total-q-num">0</span></div>
-
-        <div id="character-area">🏴‍☠️</div>
-
-        <div id="question-area" class="question"></div>
-        <div id="options-area" class="options"></div>
-        <div id="feedback"></div>
-
-        <button id="next-btn" class="action-btn" onclick="loadNextQuestion()">Next Question ➡️</button>
-
-        <button id="back-btn" class="action-btn" onclick="returnToMenu()">🗺️ Back to Map Selection</button>
     </div>
 </div>
 
