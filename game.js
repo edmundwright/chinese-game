@@ -1,0 +1,137 @@
+let allLessonsData = {};
+let currentQuizData = [];
+let currentQuestionIndex = 0;
+let score = 0;
+
+// DOM Elements
+const menuArea = document.getElementById("menu-area");
+const gameArea = document.getElementById("game-area");
+const subtitle = document.getElementById("subtitle");
+const questionArea = document.getElementById("question-area");
+const optionsArea = document.getElementById("options-area");
+const feedbackArea = document.getElementById("feedback");
+const scoreCount = document.getElementById("score-count");
+const currentQNum = document.getElementById("current-q-num");
+const totalQNum = document.getElementById("total-q-num");
+const nextBtn = document.getElementById("next-btn");
+const characterArea = document.getElementById("character-area");
+const errorMsg = document.getElementById("error-msg");
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+async function loadAllData() {
+    try {
+        const response = await fetch('questions.json');
+        if (!response.ok) throw new Error("Could not load questions.json.");
+        allLessonsData = await response.json();
+        buildMenu();
+    } catch (error) {
+        menuArea.innerHTML = "";
+        errorMsg.innerHTML = "Ahoy! We couldn't load the 'questions.json' file.<br><br>" +
+        "Ensure your local web server is running.";
+        console.error(error);
+    }
+}
+
+function buildMenu() {
+    menuArea.innerHTML = "";
+    const lessons = Object.keys(allLessonsData);
+
+    lessons.forEach(lessonName => {
+        const btn = document.createElement("button");
+        btn.className = "lesson-btn";
+        btn.innerText = `🗺️ Play ${lessonName}`;
+        btn.onclick = () => startLesson(lessonName);
+        menuArea.appendChild(btn);
+    });
+}
+
+function startLesson(lessonName) {
+    menuArea.style.display = "none";
+    gameArea.style.display = "block";
+    subtitle.innerText = `Currently Exploring: ${lessonName}`;
+
+    score = 0;
+    scoreCount.innerText = score;
+    currentQuestionIndex = 0;
+
+    currentQuizData = shuffleArray([...allLessonsData[lessonName]]);
+    totalQNum.innerText = currentQuizData.length;
+
+    loadNextQuestion();
+}
+
+function returnToMenu() {
+    gameArea.style.display = "none";
+    menuArea.style.display = "flex";
+    subtitle.innerText = "Select your map to start the voyage!";
+}
+
+function loadNextQuestion() {
+    nextBtn.style.display = "none";
+    feedbackArea.innerText = "";
+    optionsArea.innerHTML = "";
+    characterArea.innerText = "⛵🏴‍☠️";
+    characterArea.className = "";
+
+    if (currentQuestionIndex >= currentQuizData.length) {
+        questionArea.innerHTML = "🎉 Incredible! You completed this map! 🎉";
+        characterArea.innerText = "🕺💰👑";
+        characterArea.classList.add("anim-dance");
+        return;
+    }
+
+    currentQNum.innerText = currentQuestionIndex + 1;
+    const currentData = currentQuizData[currentQuestionIndex];
+    questionArea.innerText = currentData.question;
+
+    const shuffledOptions = shuffleArray([...currentData.options]);
+
+    shuffledOptions.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "opt-btn";
+        btn.innerText = option;
+        btn.onclick = () => checkAnswer(option, currentData.answer, btn);
+        optionsArea.appendChild(btn);
+    });
+}
+
+function checkAnswer(selected, correct, buttonElement) {
+    const allButtons = optionsArea.querySelectorAll(".opt-btn");
+    allButtons.forEach(btn => btn.disabled = true);
+    characterArea.className = "";
+
+    if (selected === correct) {
+        buttonElement.style.backgroundColor = "#9ccc65";
+        feedbackArea.style.color = "green";
+        feedbackArea.innerText = "Correct! +1 Coin 🪙";
+
+        setTimeout(() => {
+            characterArea.innerText = "🕺🏴‍☠️✨";
+            characterArea.classList.add("anim-dance");
+        }, 10);
+
+        score++;
+        scoreCount.innerText = score;
+    } else {
+        buttonElement.style.backgroundColor = "#ef5350";
+        feedbackArea.style.color = "red";
+        feedbackArea.innerText = "Oops! The correct answer was: " + correct;
+
+        setTimeout(() => {
+            characterArea.innerText = "😵‍💫🦜💨";
+            characterArea.classList.add("anim-dizzy");
+        }, 10);
+    }
+
+    currentQuestionIndex++;
+    nextBtn.style.display = "block";
+}
+
+loadAllData();
