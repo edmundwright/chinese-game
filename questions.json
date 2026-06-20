@@ -1,0 +1,36 @@
+{
+    "Lesson 4.6": [
+        { "question": "When 'j' meets 'ü', how do you write the Pinyin?", "options": ["jü", "ju", "jiu"], "answer": "ju" },
+        { "question": "When 'q' meets 'ü', how do you write the Pinyin?", "options": ["qu", "qü", "qiu"], "answer": "qu" },
+        { "question": "When 'x' meets 'ü', how do you write the Pinyin?", "options": ["xü", "xiu", "xu"], "answer": "xu" },
+        { "question": "Which Pinyin matches the Chinese character for chicken (鸡)?", "options": ["qī", "xī", "jī"], "answer": "jī" },
+        { "question": "Which character means 'Chess' (qí)?", "options": ["戏", "棋", "旗"], "answer": "棋" },
+        { "question": "Which Pinyin matches the Chinese character for shrimp (虾)?", "options": ["xiā", "jiā", "qu"], "answer": "xiā" },
+        { "question": "What does 西瓜 (xī guā) mean?", "options": ["Tangerine", "Watermelon", "Fox"], "answer": "Watermelon" },
+        { "question": "Which Pinyin is for 'Fox' (狐狸)?", "options": ["hú li", "kū qì", "mù jī"], "answer": "hú li" },
+        { "question": "What is the Pinyin for 'Tangerine' (橘)?", "options": ["qì", "jú", "xī"], "answer": "jú" },
+        { "question": "In the poem, what does 母鸡 (mǔ jī) mean?", "options": ["Little chick", "Mother chicken", "Black chicken"], "answer": "Mother chicken" },
+        { "question": "What are the chicks doing on the grass? (游戏 - yóu xì)", "options": ["Sleeping", "Eating", "Playing games"], "answer": "Playing games" },
+        { "question": "What does the mama chicken call the missing chick? (淘气 - táo qì)", "options": ["Naughty", "Hungry", "Happy"], "answer": "Naughty" },
+        { "question": "What does 南 (nán) mean?", "options": ["North", "South", "East"], "answer": "South" },
+        { "question": "Which character means 'Table'?", "options": ["桌 (zhuō)", "椅 (yǐ)", "布 (bù)"], "answer": "桌 (zhuō)" },
+        { "question": "Which character means 'Chair'?", "options": ["谁 (shéi)", "椅 (yǐ)", "呢 (ne)"], "answer": "椅 (yǐ)" },
+        { "question": "What does 谁 (shéi) mean?", "options": ["Where", "What", "Who"], "answer": "Who" },
+        { "question": "What does 布 (bù) mean?", "options": ["Table", "Cloth", "Wood"], "answer": "Cloth" },
+        { "question": "Which word do you use to ask 'What about you?' (你 __ ?)", "options": ["呢 (ne)", "谁 (shéi)", "南 (nán)"], "answer": "呢 (ne)" }
+    ],
+    "Lesson 4.7": [
+        { "question": "Which Pinyin matches the Chinese character for 'word/character' (字)?", "options": ["zì", "cī", "sì"], "answer": "zì" },
+        { "question": "Which character means the number 'Four' (sì)?", "options": ["三", "四", "字"], "answer": "四" },
+        { "question": "If you combine 'z', 'u', and 'o', what Pinyin do you get?", "options": ["zuo", "zou", "zhao"], "answer": "zuo" },
+        { "question": "What does the character 坐 (zuò) mean?", "options": ["Stand", "Walk", "Sit"], "answer": "Sit" },
+        { "question": "Which Pinyin matches 'Wipe' (擦)?", "options": ["cā", "sǎ", "chā"], "answer": "cā" },
+        { "question": "In the poem 'Painting' (画), what has color from afar? (远看山有色)", "options": ["Water (水)", "Mountains (山)", "Birds (鸟)"], "answer": "Mountains (山)" },
+        { "question": "In the poem, why doesn't the bird get scared when people come? (人来鸟不惊)", "options": ["It is a painting", "It is sleeping", "It is singing"], "answer": "It is a painting" },
+        { "question": "What does 摔倒 (shuāi dǎo) mean?", "options": ["Stand up", "Run fast", "Fall down"], "answer": "Fall down" },
+        { "question": "Which character means 'Pain' or 'Ache'?", "options": ["喊 (hǎn)", "认 (rèn)", "痛 (tòng)"], "answer": "痛 (tòng)" },
+        { "question": "What does 认真 (rèn zhēn) mean?", "options": ["Serious / Earnest", "Naughty", "Happy"], "answer": "Serious / Earnest" },
+        { "question": "In the story, the brother has a nice 歌声 (gē shēng). What is that?", "options": ["Laughing voice", "Singing voice", "Shouting voice"], "answer": "Singing voice" },
+        { "question": "Which word means 'originally' or 'turns out'? (__ 来)", "options": ["原 (yuán)", "认 (rèn)", "倒 (dǎo)"], "answer": "原 (yuán)" }
+    ]
+}

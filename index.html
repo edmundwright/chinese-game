@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinyin Pirate Treasure Match</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #e0f7fa;
+            text-align: center;
+            padding: 20px;
+        }
+        #game-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 650px;
+            margin: 0 auto;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border: 4px solid #00acc1;
+        }
+        h1 { color: #ff8f00; font-size: 28px; margin-bottom: 10px; }
+        .subtitle { color: #00838f; font-size: 18px; margin-bottom: 30px; }
+        
+        /* Menu Styles */
+        #menu-area { display: flex; flex-direction: column; gap: 15px; }
+        .lesson-btn {
+            padding: 20px;
+            font-size: 20px;
+            background-color: #4dd0e1;
+            border: 3px solid #00acc1;
+            border-radius: 12px;
+            color: #004d40;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lesson-btn:hover { background-color: #26c6da; transform: scale(1.02); }
+        
+        /* Game Area Styles */
+        #game-area { display: none; }
+        
+        #character-area {
+            font-size: 70px;
+            margin: 15px 0;
+            min-height: 120px;
+            display: inline-block;
+        }
+
+        @keyframes pirate-dance {
+            0% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(-15deg) scale(1.1); }
+            50% { transform: translateY(0) rotate(0deg) scale(1.1); }
+            75% { transform: translateY(-20px) rotate(15deg) scale(1.1); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        .anim-dance { animation: pirate-dance 0.6s ease-in-out infinite; }
+
+        @keyframes dizzy-drop {
+            0% { transform: rotate(0deg) translateY(0) scale(1); opacity: 1; }
+            50% { transform: rotate(180deg) translateY(-20px) scale(1.2); opacity: 1; }
+            100% { transform: rotate(360deg) translateY(60px) scale(0.5); opacity: 0; }
+        }
+        .anim-dizzy { animation: dizzy-drop 1s ease-in-out forwards; }
+
+        .question { font-size: 22px; margin-bottom: 20px; color: #37474f; min-height: 60px; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        
+        .opt-btn {
+            padding: 15px;
+            font-size: 18px;
+            font-family: inherit;
+            background-color: #ffca28;
+            border: 2px solid #ff8f00;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        .opt-btn:hover { background-color: #ffb300; }
+        .opt-btn:active { transform: scale(0.98); }
+        .opt-btn:disabled { opacity: 0.8; cursor: not-allowed; transform: none; }
+        
+        .action-btn {
+            background-color: #26c6da;
+            border: 2px solid #00838f;
+            color: #e0f2f1;
+            font-weight: bold;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .action-btn:hover { background-color: #00acc1; }
+        
+        #next-btn { display: none; width: 60%; margin-left: auto; margin-right: auto; }
+        #back-btn { background-color: #ff7043; border-color: #d84315; width: 60%; margin-left: auto; margin-right: auto; }
+        #back-btn:hover { background-color: #f4511e; }
+        
+        #score-board {
+            font-size: 20px;
+            margin-top: 25px;
+            font-weight: bold;
+            color: #00838f;
+            display: flex;
+            justify-content: space-between;
+        }
+        #feedback { font-size: 22px; font-weight: bold; margin-top: 15px; min-height: 30px; }
+        .progress { font-size: 16px; color: #546e7a; font-weight: bold; }
+        #error-msg { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <h1>🏴‍☠️ Pinyin Pirate Match 🏴‍☠️</h1>
+    <div class="subtitle" id="subtitle">Select your map to start the voyage!</div>
+
+    <div id="error-msg"></div>
+
+    <!-- Main Menu Area -->
+    <div id="menu-area">
+        Loading lessons...
+    </div>
+
+    <!-- Gameplay Area -->
+    <div id="game-area">
+        <div class="progress">Question <span id="current-q-num">0</span> of <span id="total-q-num">0</span></div>
+        
+        <div id="character-area">⛵🏴‍☠️</div>
+        
+        <div id="question-area" class="question"></div>
+        <div id="options-area" class="options"></div>
+        <div id="feedback"></div>
+        
+        <button id="next-btn" class="action-btn" onclick="loadNextQuestion()">Next Question ➡️</button>
+        
+        <div id="score-board">
+            <span>Treasure Coins: <span id="score-count">0</span> 🪙</span>
+        </div>
+
+        <button id="back-btn" class="action-btn" onclick="returnToMenu()">🗺️ Back to Map Selection</button>
+    </div>
+</div>
+
+<script>
+    let allLessonsData = {};
+    let currentQuizData = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    // DOM Elements
+    const menuArea = document.getElementById("menu-area");
+    const gameArea = document.getElementById("game-area");
+    const subtitle = document.getElementById("subtitle");
+    const questionArea = document.getElementById("question-area");
+    const optionsArea = document.getElementById("options-area");
+    const feedbackArea = document.getElementById("feedback");
+    const scoreCount = document.getElementById("score-count");
+    const currentQNum = document.getElementById("current-q-num");
+    const totalQNum = document.getElementById("total-q-num");
+    const nextBtn = document.getElementById("next-btn");
+    const characterArea = document.getElementById("character-area");
+    const errorMsg = document.getElementById("error-msg");
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    async function loadAllData() {
+        try {
+            const response = await fetch('questions.json');
+            if (!response.ok) throw new Error("Could not load questions.json.");
+            allLessonsData = await response.json();
+            buildMenu();
+        } catch (error) {
+            menuArea.innerHTML = "";
+            errorMsg.innerHTML = "Ahoy! We couldn't load the 'questions.json' file.<br><br>" +
+            "Ensure your local web server is running.";
+            console.error(error);
+        }
+    }
+
+    function buildMenu() {
+        menuArea.innerHTML = "";
+        const lessons = Object.keys(allLessonsData);
+        
+        lessons.forEach(lessonName => {
+            const btn = document.createElement("button");
+            btn.className = "lesson-btn";
+            btn.innerText = `🗺️ Play ${lessonName}`;
+            btn.onclick = () => startLesson(lessonName);
+            menuArea.appendChild(btn);
+        });
+    }
+
+    function startLesson(lessonName) {
+        // Hide menu, show game
+        menuArea.style.display = "none";
+        gameArea.style.display = "block";
+        subtitle.innerText = `Currently Exploring: ${lessonName}`;
+
+        // Reset stats
+        score = 0;
+        scoreCount.innerText = score;
+        currentQuestionIndex = 0;
+
+        // Load and shuffle questions for the selected lesson
+        currentQuizData = shuffleArray([...allLessonsData[lessonName]]);
+        totalQNum.innerText = currentQuizData.length;
+
+        loadNextQuestion();
+    }
+
+    function returnToMenu() {
+        gameArea.style.display = "none";
+        menuArea.style.display = "flex";
+        subtitle.innerText = "Select your map to start the voyage!";
+    }
+
+    function loadNextQuestion() {
+        nextBtn.style.display = "none";
+        feedbackArea.innerText = "";
+        optionsArea.innerHTML = "";
+        characterArea.innerText = "⛵🏴‍☠️";
+        characterArea.className = "";
+        
+        if (currentQuestionIndex >= currentQuizData.length) {
+            questionArea.innerHTML = "🎉 Incredible! You completed this map! 🎉";
+            characterArea.innerText = "🕺💰👑";
+            characterArea.classList.add("anim-dance");
+            return;
+        }
+
+        currentQNum.innerText = currentQuestionIndex + 1;
+        const currentData = currentQuizData[currentQuestionIndex];
+        questionArea.innerText = currentData.question;
+
+        const shuffledOptions = shuffleArray([...currentData.options]);
+
+        shuffledOptions.forEach(option => {
+            const btn = document.createElement("button");
+            btn.className = "opt-btn";
+            btn.innerText = option;
+            btn.onclick = () => checkAnswer(option, currentData.answer, btn);
+            optionsArea.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected, correct, buttonElement) {
+        const allButtons = optionsArea.querySelectorAll(".opt-btn");
+        allButtons.forEach(btn => btn.disabled = true);
+        characterArea.className = "";
+
+        if (selected === correct) {
+            buttonElement.style.backgroundColor = "#9ccc65"; 
+            feedbackArea.style.color = "green";
+            feedbackArea.innerText = "Correct! +1 Coin 🪙";
+            
+            setTimeout(() => {
+                characterArea.innerText = "🕺🏴‍☠️✨";
+                characterArea.classList.add("anim-dance");
+            }, 10);
+
+            score++;
+            scoreCount.innerText = score;
+        } else {
+            buttonElement.style.backgroundColor = "#ef5350"; 
+            feedbackArea.style.color = "red";
+            feedbackArea.innerText = "Oops! The correct answer was: " + correct;
+            
+            setTimeout(() => {
+                characterArea.innerText = "😵‍💫🦜💨";
+                characterArea.classList.add("anim-dizzy");
+            }, 10);
+        }
+
+        currentQuestionIndex++;
+        nextBtn.style.display = "block";
+    }
+
+    // Initialize the app by loading the JSON
+    loadAllData();
+</script>
+
+</body>
+</html>
