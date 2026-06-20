@@ -43,12 +43,38 @@ function buildMenu() {
     menuArea.innerHTML = "";
     const lessons = Object.keys(allLessonsData);
 
-    lessons.forEach(lessonName => {
-        const btn = document.createElement("button");
-        btn.className = "lesson-btn";
-        btn.innerText = `🗺️ Play ${lessonName}`;
-        btn.onclick = () => startLesson(lessonName);
-        menuArea.appendChild(btn);
+    lessons.forEach((lessonName, index) => {
+        const group = document.createElement("div");
+        group.className = "lesson-group";
+
+        const label = document.createElement("div");
+        label.className = "lesson-group-label";
+        label.innerText = lessonName;
+        group.appendChild(label);
+
+        const btnRow = document.createElement("div");
+        btnRow.className = "lesson-group-btns";
+
+        const soloBtn = document.createElement("button");
+        soloBtn.className = "lesson-btn lesson-btn-solo";
+        soloBtn.innerText = "🗺️ This Lesson";
+        soloBtn.onclick = () => startLesson(lessonName);
+        btnRow.appendChild(soloBtn);
+
+        const cumulativeBtn = document.createElement("button");
+        cumulativeBtn.className = "lesson-btn lesson-btn-cumulative";
+        if (index === 0) {
+            cumulativeBtn.innerText = "🌊 All So Far";
+            cumulativeBtn.disabled = true;
+            cumulativeBtn.title = "No prior lessons to combine with";
+        } else {
+            cumulativeBtn.innerText = "🌊 All So Far";
+            cumulativeBtn.onclick = () => startCumulativeLesson(lessonName, lessons.slice(0, index + 1));
+        }
+        btnRow.appendChild(cumulativeBtn);
+
+        group.appendChild(btnRow);
+        menuArea.appendChild(group);
     });
 }
 
@@ -62,6 +88,22 @@ function startLesson(lessonName) {
     currentQuestionIndex = 0;
 
     currentQuizData = shuffleArray([...allLessonsData[lessonName]]);
+    totalQNum.innerText = currentQuizData.length;
+
+    loadNextQuestion();
+}
+
+function startCumulativeLesson(lessonName, lessonNames) {
+    menuArea.style.display = "none";
+    gameArea.style.display = "block";
+    subtitle.innerText = `Cumulative Review up to: ${lessonName}`;
+
+    score = 0;
+    scoreCount.innerText = score;
+    currentQuestionIndex = 0;
+
+    const pool = lessonNames.flatMap(name => allLessonsData[name]);
+    currentQuizData = shuffleArray([...pool]);
     totalQNum.innerText = currentQuizData.length;
 
     loadNextQuestion();

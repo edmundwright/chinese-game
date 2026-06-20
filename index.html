@@ -24,19 +24,33 @@
         .subtitle { color: #00838f; font-size: 18px; margin-bottom: 30px; }
         
         /* Menu Styles */
-        #menu-area { display: flex; flex-direction: column; gap: 15px; }
+        #menu-area { display: flex; flex-direction: column; gap: 12px; }
+        .lesson-group { display: flex; flex-direction: column; gap: 0; border: 3px solid #00acc1; border-radius: 12px; overflow: hidden; }
+        .lesson-group-label {
+            background-color: #00838f;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 6px 12px;
+            text-align: left;
+        }
+        .lesson-group-btns { display: flex; }
         .lesson-btn {
-            padding: 20px;
-            font-size: 20px;
-            background-color: #4dd0e1;
-            border: 3px solid #00acc1;
-            border-radius: 12px;
+            flex: 1;
+            padding: 14px 8px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
             color: #004d40;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .lesson-btn:hover { background-color: #26c6da; transform: scale(1.02); }
+        .lesson-btn-solo { background-color: #4dd0e1; border-right: 2px solid #00acc1; }
+        .lesson-btn-solo:hover { background-color: #26c6da; }
+        .lesson-btn-cumulative { background-color: #80cbc4; }
+        .lesson-btn-cumulative:hover { background-color: #4db6ac; }
+        .lesson-btn-cumulative:disabled { opacity: 0.4; cursor: not-allowed; }
         
         /* Game Area Styles */
         #game-area { display: none; }
