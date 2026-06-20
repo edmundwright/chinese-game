@@ -10,7 +10,11 @@
         { "question": "What does 每天 (měi tiān) mean?", "options": ["Every year", "Every month", "Every day"], "answer": "Every day" },
         { "question": "What does 一百 (yī bǎi) mean?", "options": ["One thousand", "One hundred", "Ten"], "answer": "One hundred" },
         { "question": "What does 身体 (shēn tǐ) mean?", "options": ["Body", "Mind", "Heart"], "answer": "Body" },
-        { "question": "What does 校长 (xiào zhǎng) mean?", "options": ["Teacher", "Student", "Principal"], "answer": "Principal" }
+        { "question": "What does 校长 (xiào zhǎng) mean?", "options": ["Teacher", "Student", "Principal"], "answer": "Principal" },
+        { "question": "Which initial consonant matches 魔 (mó - magic)?", "options": ["b", "p", "m"], "answer": "m" },
+        { "question": "What does 不 (bù) mean?", "options": ["Yes", "Also", "No / Not"], "answer": "No / Not" },
+        { "question": "What does 米 (mǐ) mean?", "options": ["Bread", "Noodle", "Rice"], "answer": "Rice" },
+        { "question": "What does 每年 (měi nián) mean?", "options": ["Every month", "Every day", "Every year"], "answer": "Every year" }
     ],
     "Lesson 4.2": [
         { "question": "Which vowel sound does 椅子 (yǐ zi - chair) begin with?", "options": ["u", "ü", "i"], "answer": "i" },
@@ -21,7 +25,13 @@
         { "question": "What does 躲 (duǒ) mean?", "options": ["Run", "Jump", "Hide"], "answer": "Hide" },
         { "question": "What does 躲雨 (duǒ yǔ) mean?", "options": ["Dance in the rain", "Watch the rain", "Shelter from the rain"], "answer": "Shelter from the rain" },
         { "question": "What does 荷叶 (hé yè) mean?", "options": ["Lotus flower", "Lotus root", "Lotus leaf"], "answer": "Lotus leaf" },
-        { "question": "What does 颜色 (yán sè) mean?", "options": ["Sound", "Shape", "Color"], "answer": "Color" }
+        { "question": "What does 颜色 (yán sè) mean?", "options": ["Sound", "Shape", "Color"], "answer": "Color" },
+        { "question": "What does 弟弟 (dì di) mean?", "options": ["Older brother", "Younger sister", "Younger brother"], "answer": "Younger brother" },
+        { "question": "What does 哭 (kū) mean?", "options": ["Laugh", "Sing", "Cry"], "answer": "Cry" },
+        { "question": "What does 女 (nǚ) mean?", "options": ["Male", "Child", "Female"], "answer": "Female" },
+        { "question": "What does 梅花 (méi huā) mean?", "options": ["Lotus", "Chrysanthemum", "Plum blossom"], "answer": "Plum blossom" },
+        { "question": "What does 菊花 (jú huā) mean?", "options": ["Orchid", "Lotus", "Chrysanthemum"], "answer": "Chrysanthemum" },
+        { "question": "What does 兰花 (lán huā) mean?", "options": ["Chrysanthemum", "Lotus", "Orchid"], "answer": "Orchid" }
     ],
     "Lesson 4.3": [
         { "question": "Which Pinyin matches 'Climb' (爬)?", "options": ["bā", "mǎ", "pá"], "answer": "pá" },
@@ -34,7 +44,11 @@
         { "question": "What does 最 (zuì) mean?", "options": ["Very", "Also", "Most"], "answer": "Most" },
         { "question": "What does 伯伯 (bó bo) mean?", "options": ["Grandfather", "Teacher", "Uncle (father's older brother)"], "answer": "Uncle (father's older brother)" },
         { "question": "What does 敢 (gǎn) mean?", "options": ["Run", "Hide", "Dare"], "answer": "Dare" },
-        { "question": "What does 民歌 (mín gē) mean?", "options": ["Children's song", "Love song", "Folk song"], "answer": "Folk song" }
+        { "question": "What does 民歌 (mín gē) mean?", "options": ["Children's song", "Love song", "Folk song"], "answer": "Folk song" },
+        { "question": "What does 桃子 (táo zi) mean?", "options": ["Apple", "Orange", "Peach"], "answer": "Peach" },
+        { "question": "What does 农村 (nóng cūn) mean?", "options": ["City", "Forest", "Countryside / Village"], "answer": "Countryside / Village" },
+        { "question": "What does 最好 (zuì hǎo) mean?", "options": ["Very good", "Not good", "The best"], "answer": "The best" },
+        { "question": "What does 种地 (zhòng dì) mean?", "options": ["Water plants", "Plant flowers", "Farm the land"], "answer": "Farm the land" }
     ],
     "Lesson 4.4": [
         { "question": "Which Pinyin matches 'Rabbit' (兔)?", "options": ["lù", "nü", "tù"], "answer": "tù" },
@@ -45,7 +59,13 @@
         { "question": "What does 一片 (yī piàn) mean?", "options": ["One pile", "One drop", "One piece / slice"], "answer": "One piece / slice" },
         { "question": "What does 睡醒 (shuì xǐng) mean?", "options": ["Fall asleep", "Have a dream", "Wake up"], "answer": "Wake up" },
         { "question": "What does 吹 (chuī) mean?", "options": ["Pour", "Draw", "Blow"], "answer": "Blow" },
-        { "question": "What does 醒来 (xǐng lái) mean?", "options": ["Fall asleep", "Get dressed", "Wake up"], "answer": "Wake up" }
+        { "question": "What does 醒来 (xǐng lái) mean?", "options": ["Fall asleep", "Get dressed", "Wake up"], "answer": "Wake up" },
+        { "question": "What does 兔子 (tù zi) mean?", "options": ["Frog", "Horse", "Rabbit"], "answer": "Rabbit" },
+        { "question": "What does 绿 (lǜ) mean?", "options": ["Blue", "Red", "Green"], "answer": "Green" },
+        { "question": "What does 睡着 (shuì zhe) mean?", "options": ["Wake up", "Have a dream", "Fall asleep"], "answer": "Fall asleep" },
+        { "question": "What does 浇花 (jiāo huā) mean?", "options": ["Pick flowers", "Smell flowers", "Water the flowers"], "answer": "Water the flowers" },
+        { "question": "What does 堆 (duī) mean?", "options": ["Piece", "Drop", "Pile / Stack"], "answer": "Pile / Stack" },
+        { "question": "What does 气球 (qì qiú) mean?", "options": ["Basketball", "Football", "Balloon"], "answer": "Balloon" }
     ],
     "Lesson 4.5": [
         { "question": "Which initial consonant matches 哥哥 (gē ge - older brother)?", "options": ["k", "h", "g"], "answer": "g" },
@@ -60,7 +80,9 @@
         { "question": "What sound does a frog make in Chinese?", "options": ["咕噜咕噜", "滴答滴答", "呱呱呱"], "answer": "呱呱呱" },
         { "question": "What does 抱 (bào) mean?", "options": ["Sit", "Stand", "Hug"], "answer": "Hug" },
         { "question": "What does 坐好 (zuò hǎo) mean?", "options": ["Stand properly", "Walk properly", "Sit properly"], "answer": "Sit properly" },
-        { "question": "What does 春游 (chūn yóu) mean?", "options": ["Spring rain", "Spring planting", "Spring outing / picnic trip"], "answer": "Spring outing / picnic trip" }
+        { "question": "What does 春游 (chūn yóu) mean?", "options": ["Spring rain", "Spring planting", "Spring outing / picnic trip"], "answer": "Spring outing / picnic trip" },
+        { "question": "What does 哥哥 (gē ge) mean?", "options": ["Younger brother", "Older sister", "Older brother"], "answer": "Older brother" },
+        { "question": "What does 坐下 (zuò xià) mean?", "options": ["Stand up", "Lie down", "Sit down"], "answer": "Sit down" }
     ],
     "Lesson 4.6": [
         { "question": "When 'j' meets 'ü', how do you write the Pinyin?", "options": ["jü", "ju", "jiu"], "answer": "ju" },
@@ -93,6 +115,48 @@
         { "question": "Which character means 'Pain' or 'Ache'?", "options": ["喊 (hǎn)", "认 (rèn)", "痛 (tòng)"], "answer": "痛 (tòng)" },
         { "question": "What does 认真 (rèn zhēn) mean?", "options": ["Serious / Earnest", "Naughty", "Happy"], "answer": "Serious / Earnest" },
         { "question": "In the story, the brother has a nice 歌声 (gē shēng). What is that?", "options": ["Laughing voice", "Singing voice", "Shouting voice"], "answer": "Singing voice" },
-        { "question": "Which word means 'originally' or 'turns out'? (__ 来)", "options": ["原 (yuán)", "认 (rèn)", "倒 (dǎo)"], "answer": "原 (yuán)" }
+        { "question": "Which word means 'originally' or 'turns out'? (__ 来)", "options": ["原 (yuán)", "认 (rèn)", "倒 (dǎo)"], "answer": "原 (yuán)" },
+        { "question": "What does 远 (yuǎn) mean?", "options": ["Near", "High", "Far"], "answer": "Far" },
+        { "question": "What does 近 (jìn) mean?", "options": ["Far", "Low", "Near / Close"], "answer": "Near / Close" },
+        { "question": "What does 大声 (dà shēng) mean?", "options": ["Quietly", "Slowly", "Loud / Out loud"], "answer": "Loud / Out loud" },
+        { "question": "What does 喊 (hǎn) mean?", "options": ["Whisper", "Sing", "Shout / Call out"], "answer": "Shout / Call out" }
+    ],
+    "Lesson 4.8": [
+        { "question": "Which initial consonant matches 竹 (zhú - bamboo)?", "options": ["z", "ch", "zh"], "answer": "zh" },
+        { "question": "Which initial consonant matches 树 (shù - tree)?", "options": ["s", "zh", "sh"], "answer": "sh" },
+        { "question": "Which initial consonant matches 日 (rì - sun / day)?", "options": ["zh", "sh", "r"], "answer": "r" },
+        { "question": "Which initial consonant matches 茶 (chá - tea)?", "options": ["zh", "sh", "ch"], "answer": "ch" },
+        { "question": "What does 蜘蛛 (zhī zhū) mean?", "options": ["Bee", "Ant", "Spider"], "answer": "Spider" },
+        { "question": "What does 日出 (rì chū) mean?", "options": ["Sunset", "Moonrise", "Sunrise"], "answer": "Sunrise" },
+        { "question": "What does 竹子 (zhú zi) mean?", "options": ["Tree", "Grass", "Bamboo"], "answer": "Bamboo" },
+        { "question": "What does 茶 (chá) mean?", "options": ["Coffee", "Juice", "Tea"], "answer": "Tea" },
+        { "question": "What does 两 (liǎng) mean?", "options": ["One", "Three", "Two"], "answer": "Two" },
+        { "question": "What does 路 (lù) mean?", "options": ["River", "Mountain", "Road / Path"], "answer": "Road / Path" },
+        { "question": "What does 假话 (jiǎ huà) mean?", "options": ["Kind words", "True words", "Lie / False words"], "answer": "Lie / False words" },
+        { "question": "What does 救 (jiù) mean?", "options": ["Attack", "Run", "Save / Rescue"], "answer": "Save / Rescue" },
+        { "question": "What does 赶快 (gǎn kuài) mean?", "options": ["Slowly", "Carefully", "Hurry up / Quickly"], "answer": "Hurry up / Quickly" },
+        { "question": "What does 逃跑 (táo pǎo) mean?", "options": ["Run fast", "Jump away", "Run away / Escape"], "answer": "Run away / Escape" },
+        { "question": "What does 掉落 (diào luò) mean?", "options": ["Fly up", "Float away", "Fall down / Drop"], "answer": "Fall down / Drop" },
+        { "question": "What does 种树 (zhòng shù) mean?", "options": ["Cut down trees", "Water trees", "Plant trees"], "answer": "Plant trees" },
+        { "question": "What does 走路 (zǒu lù) mean?", "options": ["Run on a road", "Swim in water", "Walk / Walk on a road"], "answer": "Walk / Walk on a road" }
+    ],
+    "Lesson 4.9": [
+        { "question": "When the vowel 'i' starts a syllable alone (no initial consonant), how do you write it?", "options": ["i", "wi", "yi"], "answer": "yi" },
+        { "question": "When the vowel 'u' starts a syllable alone (no initial consonant), how do you write it?", "options": ["u", "uw", "wu"], "answer": "wu" },
+        { "question": "When the vowel 'ü' starts a syllable alone (no initial consonant), how do you write it?", "options": ["yü", "ü", "yu"], "answer": "yu" },
+        { "question": "What does 衣服 (yī fu) mean?", "options": ["Shoes", "Hat", "Clothes"], "answer": "Clothes" },
+        { "question": "What does 蚂蚁 (mǎ yǐ) mean?", "options": ["Bee", "Spider", "Ant"], "answer": "Ant" },
+        { "question": "What does 玉米 (yù mǐ) mean?", "options": ["Rice", "Wheat", "Corn / Maize"], "answer": "Corn / Maize" },
+        { "question": "What does 雨衣 (yǔ yī) mean?", "options": ["Umbrella", "Boots", "Raincoat"], "answer": "Raincoat" },
+        { "question": "What does 袜子 (wà zi) mean?", "options": ["Shoes", "Hat", "Socks"], "answer": "Socks" },
+        { "question": "What does 南瓜 (nán guā) mean?", "options": ["Watermelon", "Cucumber", "Pumpkin"], "answer": "Pumpkin" },
+        { "question": "What does 蝴蝶 (hú dié) mean?", "options": ["Dragonfly", "Bee", "Butterfly"], "answer": "Butterfly" },
+        { "question": "What does 河马 (hé mǎ) mean?", "options": ["Rhino", "Elephant", "Hippo"], "answer": "Hippo" },
+        { "question": "What does 聪明 (cōng míng) mean?", "options": ["Brave", "Kind", "Clever / Smart"], "answer": "Clever / Smart" },
+        { "question": "What does 公鸡 (gōng jī) mean?", "options": ["Hen", "Chick", "Rooster"], "answer": "Rooster" },
+        { "question": "What does 裤子 (kù zi) mean?", "options": ["Shirt", "Dress", "Pants / Trousers"], "answer": "Pants / Trousers" },
+        { "question": "What does 恐龙 (kǒng lóng) mean?", "options": ["Dragon", "Crocodile", "Dinosaur"], "answer": "Dinosaur" },
+        { "question": "What does 老虎 (lǎo hǔ) mean?", "options": ["Lion", "Leopard", "Tiger"], "answer": "Tiger" },
+        { "question": "What does 碰见 (pèng jiàn) mean?", "options": ["Say goodbye", "Walk past", "Run into / Meet by chance"], "answer": "Run into / Meet by chance" }
     ]
 }
