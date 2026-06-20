@@ -2,6 +2,7 @@ let allLessonsData = {};
 let currentQuizData = [];
 let currentQuestionIndex = 0;
 let score = 0;
+let streak = 0;
 
 // DOM Elements
 const menuArea = document.getElementById("menu-area");
@@ -16,6 +17,8 @@ const totalQNum = document.getElementById("total-q-num");
 const nextBtn = document.getElementById("next-btn");
 const characterArea = document.getElementById("character-area");
 const errorMsg = document.getElementById("error-msg");
+const streakDisplay = document.getElementById("streak-display");
+const voyageShip = document.getElementById("voyage-ship");
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -23,6 +26,21 @@ function shuffleArray(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+}
+
+function updateVoyagePath() {
+    const total = currentQuizData.length;
+    const pct = total > 0 ? 5 + (currentQuestionIndex / total) * 90 : 5;
+    voyageShip.style.left = pct + "%";
+}
+
+function updateStatusBar() {
+    if (streak >= 5) streakDisplay.innerText = `🔥🔥🔥 ×${streak}`;
+    else if (streak >= 3) streakDisplay.innerText = `🔥🔥 ×${streak}`;
+    else if (streak >= 2) streakDisplay.innerText = `🔥 ×${streak}`;
+    else streakDisplay.innerText = "";
+
+    scoreCount.innerText = score;
 }
 
 async function loadAllData() {
@@ -78,18 +96,22 @@ function buildMenu() {
     });
 }
 
+function initGame() {
+    score = 0;
+    streak = 0;
+    currentQuestionIndex = 0;
+    updateStatusBar();
+    updateVoyagePath();
+}
+
 function startLesson(lessonName) {
     menuArea.style.display = "none";
     gameArea.style.display = "block";
     subtitle.innerText = `Currently Exploring: ${lessonName}`;
 
-    score = 0;
-    scoreCount.innerText = score;
-    currentQuestionIndex = 0;
-
     currentQuizData = shuffleArray([...allLessonsData[lessonName]]);
     totalQNum.innerText = currentQuizData.length;
-
+    initGame();
     loadNextQuestion();
 }
 
@@ -98,14 +120,10 @@ function startCumulativeLesson(lessonName, lessonNames) {
     gameArea.style.display = "block";
     subtitle.innerText = `Cumulative Review up to: ${lessonName}`;
 
-    score = 0;
-    scoreCount.innerText = score;
-    currentQuestionIndex = 0;
-
     const pool = lessonNames.flatMap(name => allLessonsData[name]);
     currentQuizData = shuffleArray([...pool]);
     totalQNum.innerText = currentQuizData.length;
-
+    initGame();
     loadNextQuestion();
 }
 
@@ -119,13 +137,12 @@ function loadNextQuestion() {
     nextBtn.style.display = "none";
     feedbackArea.innerText = "";
     optionsArea.innerHTML = "";
-    characterArea.innerText = "⛵🏴‍☠️";
+    characterArea.innerText = "🏴‍☠️";
     characterArea.className = "";
+    updateVoyagePath();
 
     if (currentQuestionIndex >= currentQuizData.length) {
-        questionArea.innerHTML = "🎉 Incredible! You completed this map! 🎉";
-        characterArea.innerText = "🕺💰👑";
-        characterArea.classList.add("anim-dance");
+        showEndScreen();
         return;
     }
 
@@ -134,7 +151,6 @@ function loadNextQuestion() {
     questionArea.innerText = currentData.question;
 
     const shuffledOptions = shuffleArray([...currentData.options]);
-
     shuffledOptions.forEach(option => {
         const btn = document.createElement("button");
         btn.className = "opt-btn";
@@ -144,27 +160,43 @@ function loadNextQuestion() {
     });
 }
 
+function showEndScreen() {
+    voyageShip.style.left = "95%";
+    questionArea.innerHTML = `🎉 You found the treasure! ${score} coins collected! 🎉`;
+    characterArea.innerText = "🏆💰👑";
+    characterArea.className = "";
+    setTimeout(() => characterArea.classList.add("anim-dance"), 10);
+}
+
 function checkAnswer(selected, correct, buttonElement) {
     const allButtons = optionsArea.querySelectorAll(".opt-btn");
     allButtons.forEach(btn => btn.disabled = true);
     characterArea.className = "";
 
     if (selected === correct) {
+        streak++;
+        const bonus = streak >= 5 ? 2 : streak >= 3 ? 1 : 0;
+        const coinsEarned = 1 + bonus;
+        score += coinsEarned;
+
         buttonElement.style.backgroundColor = "#9ccc65";
         feedbackArea.style.color = "green";
-        feedbackArea.innerText = "Correct! +1 Coin 🪙";
+        let feedbackText = `Correct! +${coinsEarned} 🪙`;
+        if (streak >= 5) feedbackText += "  🔥🔥🔥 MEGA COMBO!";
+        else if (streak >= 3) feedbackText += "  🔥🔥 COMBO BONUS!";
+        else if (streak >= 2) feedbackText += "  🔥 Streak!";
+        feedbackArea.innerText = feedbackText;
 
         setTimeout(() => {
             characterArea.innerText = "🕺🏴‍☠️✨";
             characterArea.classList.add("anim-dance");
         }, 10);
-
-        score++;
-        scoreCount.innerText = score;
     } else {
+        streak = 0;
+
         buttonElement.style.backgroundColor = "#ef5350";
         feedbackArea.style.color = "red";
-        feedbackArea.innerText = "Oops! The correct answer was: " + correct;
+        feedbackArea.innerText = `Oops! The answer was: ${correct}`;
 
         setTimeout(() => {
             characterArea.innerText = "😵‍💫🦜💨";
@@ -172,6 +204,7 @@ function checkAnswer(selected, correct, buttonElement) {
         }, 10);
     }
 
+    updateStatusBar();
     currentQuestionIndex++;
     nextBtn.style.display = "block";
 }
