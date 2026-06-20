@@ -121,7 +121,8 @@ function startCumulativeLesson(lessonName, lessonNames) {
     subtitle.innerText = `Cumulative Review up to: ${lessonName}`;
 
     const pool = lessonNames.flatMap(name => allLessonsData[name]);
-    currentQuizData = shuffleArray([...pool]);
+    const shuffled = shuffleArray([...pool]);
+    currentQuizData = shuffled.slice(0, 15);
     totalQNum.innerText = currentQuizData.length;
     initGame();
     loadNextQuestion();
