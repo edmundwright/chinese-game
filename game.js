@@ -3,6 +3,10 @@ let currentQuizData = [];
 let currentQuestionIndex = 0;
 let score = 0;
 let streak = 0;
+let milestoneReached = 0;
+let lastCreatureQuestion = -5;
+
+const SEA_CREATURES = ['🐬', '🐋', '🐙', '🦑', '🦈', '🐠', '🦀', '🐡', '🦭', '🐢'];
 
 // DOM Elements
 const menuArea = document.getElementById("menu-area");
@@ -32,13 +36,74 @@ function updateVoyagePath() {
     const total = currentQuizData.length;
     const pct = total > 0 ? 5 + (currentQuestionIndex / total) * 90 : 5;
     voyageShip.style.left = pct + "%";
+
+    if (milestoneReached < 1 && pct > 35) {
+        milestoneReached = 1;
+        triggerIslandCelebration('island-1', '⚓ Land Ho! First island!');
+    } else if (milestoneReached < 2 && pct > 65) {
+        milestoneReached = 2;
+        triggerIslandCelebration('island-2', '🌟 Treasure is close!');
+    }
+
+    if (currentQuestionIndex > 0) createWakeSparkle(pct);
+
+    if (currentQuestionIndex > 0 && currentQuestionIndex - lastCreatureQuestion >= 3 && Math.random() < 0.5) {
+        lastCreatureQuestion = currentQuestionIndex;
+        setTimeout(spawnSeaCreature, 500);
+    }
+}
+
+function triggerIslandCelebration(islandId, message) {
+    const island = document.getElementById(islandId);
+    if (island) {
+        island.classList.remove('island-pop');
+        void island.offsetWidth;
+        island.classList.add('island-pop');
+        island.addEventListener('animationend', () => island.classList.remove('island-pop'), { once: true });
+    }
+    const voyagePath = document.getElementById('voyage-path');
+    const msg = document.createElement('div');
+    msg.className = 'milestone-msg';
+    msg.innerText = message;
+    voyagePath.appendChild(msg);
+    setTimeout(() => msg.remove(), 2400);
+}
+
+function createWakeSparkle(pct) {
+    const path = document.getElementById('voyage-path');
+    const sparkle = document.createElement('div');
+    sparkle.className = 'wake-sparkle';
+    sparkle.innerText = '✨';
+    sparkle.style.left = Math.max(2, pct - 4 - Math.random() * 3) + '%';
+    sparkle.style.top = (20 + Math.random() * 55) + '%';
+    path.appendChild(sparkle);
+    setTimeout(() => sparkle.remove(), 750);
+}
+
+function spawnSeaCreature() {
+    const path = document.getElementById('voyage-path');
+    const creature = document.createElement('div');
+    creature.className = 'sea-creature';
+    creature.style.left = (10 + Math.random() * 75) + '%';
+    creature.innerText = SEA_CREATURES[Math.floor(Math.random() * SEA_CREATURES.length)];
+    path.appendChild(creature);
+    setTimeout(() => creature.remove(), 1900);
 }
 
 function updateStatusBar() {
-    if (streak >= 5) streakDisplay.innerText = `🔥🔥🔥 ×${streak}`;
-    else if (streak >= 3) streakDisplay.innerText = `🔥🔥 ×${streak}`;
-    else if (streak >= 2) streakDisplay.innerText = `🔥 ×${streak}`;
-    else streakDisplay.innerText = "";
+    if (streak >= 5) {
+        streakDisplay.innerText = `🔥🔥🔥 ×${streak}`;
+        voyageShip.style.animationDuration = '0.7s';
+    } else if (streak >= 3) {
+        streakDisplay.innerText = `🔥🔥 ×${streak}`;
+        voyageShip.style.animationDuration = '1.1s';
+    } else if (streak >= 2) {
+        streakDisplay.innerText = `🔥 ×${streak}`;
+        voyageShip.style.animationDuration = '1.6s';
+    } else {
+        streakDisplay.innerText = "";
+        voyageShip.style.animationDuration = '2.2s';
+    }
 
     scoreCount.innerText = score;
 }
@@ -100,6 +165,9 @@ function initGame() {
     score = 0;
     streak = 0;
     currentQuestionIndex = 0;
+    milestoneReached = 0;
+    lastCreatureQuestion = -5;
+    voyageShip.style.animationDuration = '2.2s';
     updateStatusBar();
     updateVoyagePath();
 }

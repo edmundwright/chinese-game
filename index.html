@@ -110,6 +110,10 @@
             z-index: 1;
             filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
         }
+        @keyframes ship-bob {
+            0%, 100% { transform: translate(-50%, -50%) rotate(-5deg); }
+            50% { transform: translate(-50%, -50%) rotate(5deg) translateY(-6px); }
+        }
         #voyage-ship {
             position: absolute;
             font-size: 28px;
@@ -118,6 +122,66 @@
             transform: translate(-50%, -50%);
             transition: left 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             z-index: 2;
+            animation: ship-bob 2.2s ease-in-out infinite;
+        }
+
+        @keyframes island-pop {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            25% { transform: translate(-50%, -50%) scale(1.8) translateY(-8px); }
+            60% { transform: translate(-50%, -50%) scale(0.85); }
+            80% { transform: translate(-50%, -50%) scale(1.15); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        .island-pop { animation: island-pop 0.8s ease-out; }
+
+        @keyframes milestone-popup {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+        .milestone-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: rgba(255,255,255,0.95);
+            border: 2px solid #ff8f00;
+            border-radius: 8px;
+            padding: 3px 10px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #e65100;
+            z-index: 10;
+            white-space: nowrap;
+            pointer-events: none;
+            animation: milestone-popup 2.3s ease-out forwards;
+        }
+
+        @keyframes creature-jump {
+            0% { transform: translateY(120%); }
+            30% { transform: translateY(-55%); }
+            55% { transform: translateY(-55%); }
+            100% { transform: translateY(120%); }
+        }
+        .sea-creature {
+            position: absolute;
+            bottom: 0;
+            font-size: 22px;
+            z-index: 3;
+            pointer-events: none;
+            animation: creature-jump 1.8s ease-in-out forwards;
+        }
+
+        @keyframes wake-fade {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-14px) scale(0.2); opacity: 0; }
+        }
+        .wake-sparkle {
+            position: absolute;
+            font-size: 11px;
+            pointer-events: none;
+            animation: wake-fade 0.7s ease-out forwards;
+            z-index: 1;
         }
 
         /* Two-column game layout */
@@ -274,8 +338,8 @@
     <div id="game-area">
         <div id="voyage-path">
             <div class="voyage-milestone" style="left:5%">🏝️</div>
-            <div class="voyage-milestone" style="left:35%">🏝️</div>
-            <div class="voyage-milestone" style="left:65%">🏝️</div>
+            <div class="voyage-milestone" id="island-1" style="left:35%">🏝️</div>
+            <div class="voyage-milestone" id="island-2" style="left:65%">🏝️</div>
             <div class="voyage-milestone" style="left:95%">💰</div>
             <div id="voyage-ship">⛵</div>
         </div>
