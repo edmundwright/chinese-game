@@ -1,8 +1,12 @@
 let allLessonsData = {};
-let currentQuizData = [];
-let currentQuestionIndex = 0;
+let currentQuestion = null;
+let questionPool = [];
+let wrongAnswersQueue = [];
+let totalSteps = 0;
+let stepsCompleted = 0;
 let score = 0;
 let milestoneReached = 0;
+let questionsAsked = 0;
 let lastCreatureQuestion = -5;
 
 const SEA_CREATURES = ['🐬', '🐋', '🐙', '🦑', '🦈', '🐠', '🦀', '🐡', '🦭', '🐢'];
@@ -31,8 +35,7 @@ function shuffleArray(array) {
 }
 
 function updateVoyagePath() {
-    const total = currentQuizData.length;
-    const pct = total > 0 ? 5 + (currentQuestionIndex / total) * 90 : 5;
+    const pct = totalSteps > 0 ? 5 + (stepsCompleted / totalSteps) * 90 : 5;
     voyageShip.style.left = pct + "%";
 
     if (milestoneReached < 1 && pct > 35) {
@@ -43,12 +46,7 @@ function updateVoyagePath() {
         triggerIslandCelebration('island-2', '🌟 Treasure is close!');
     }
 
-    if (currentQuestionIndex > 0) createWakeSparkle(pct);
-
-    if (currentQuestionIndex > 0 && currentQuestionIndex - lastCreatureQuestion >= 3 && Math.random() < 0.5) {
-        lastCreatureQuestion = currentQuestionIndex;
-        setTimeout(spawnSeaCreature, 500);
-    }
+    if (stepsCompleted > 0) createWakeSparkle(pct);
 }
 
 function triggerIslandCelebration(islandId, message) {
@@ -90,6 +88,8 @@ function spawnSeaCreature() {
 
 function updateStatusBar() {
     scoreCount.innerText = score;
+    currentQNum.innerText = Math.min(stepsCompleted + 1, totalSteps);
+    totalQNum.innerText = totalSteps;
 }
 
 async function loadAllData() {
@@ -145,9 +145,13 @@ function buildMenu() {
     });
 }
 
-function initGame() {
+function initGame(steps, questions) {
     score = 0;
-    currentQuestionIndex = 0;
+    stepsCompleted = 0;
+    totalSteps = steps;
+    questionPool = shuffleArray([...questions]);
+    wrongAnswersQueue = [];
+    questionsAsked = 0;
     milestoneReached = 0;
     lastCreatureQuestion = -5;
     updateStatusBar();
@@ -159,9 +163,8 @@ function startLesson(lessonName) {
     gameArea.style.display = "flex";
     subtitle.innerText = `Currently Exploring: ${lessonName}`;
 
-    currentQuizData = shuffleArray([...allLessonsData[lessonName]]);
-    totalQNum.innerText = currentQuizData.length;
-    initGame();
+    const questions = allLessonsData[lessonName];
+    initGame(questions.length, questions);
     loadNextQuestion();
 }
 
@@ -171,10 +174,7 @@ function startCumulativeLesson(lessonName, lessonNames) {
     subtitle.innerText = `Cumulative Review up to: ${lessonName}`;
 
     const pool = lessonNames.flatMap(name => allLessonsData[name]);
-    const shuffled = shuffleArray([...pool]);
-    currentQuizData = shuffled.slice(0, 15);
-    totalQNum.innerText = currentQuizData.length;
-    initGame();
+    initGame(15, pool);
     loadNextQuestion();
 }
 
@@ -190,23 +190,33 @@ function loadNextQuestion() {
     optionsArea.innerHTML = "";
     characterArea.innerText = "🏴‍☠️";
     characterArea.className = "";
-    updateVoyagePath();
 
-    if (currentQuestionIndex >= currentQuizData.length) {
+    if (stepsCompleted >= totalSteps) {
         showEndScreen();
         return;
     }
 
-    currentQNum.innerText = currentQuestionIndex + 1;
-    const currentData = currentQuizData[currentQuestionIndex];
-    questionArea.innerText = currentData.question;
+    // Refill from wrong answers if the current pool is exhausted
+    if (questionPool.length === 0) {
+        questionPool = shuffleArray([...wrongAnswersQueue]);
+        wrongAnswersQueue = [];
+    }
 
-    const shuffledOptions = shuffleArray([...currentData.options]);
+    questionsAsked++;
+    if (questionsAsked - lastCreatureQuestion >= 3 && Math.random() < 0.5) {
+        lastCreatureQuestion = questionsAsked;
+        setTimeout(spawnSeaCreature, 500);
+    }
+
+    currentQuestion = questionPool.shift();
+    questionArea.innerText = currentQuestion.question;
+
+    const shuffledOptions = shuffleArray([...currentQuestion.options]);
     shuffledOptions.forEach(option => {
         const btn = document.createElement("button");
         btn.className = "opt-btn";
         btn.innerText = option;
-        btn.onclick = () => checkAnswer(option, currentData.answer, btn);
+        btn.onclick = () => checkAnswer(option, currentQuestion.answer, btn);
         optionsArea.appendChild(btn);
     });
 }
@@ -226,6 +236,8 @@ function checkAnswer(selected, correct, buttonElement) {
 
     if (selected === correct) {
         score += 1;
+        stepsCompleted++;
+        updateVoyagePath();
 
         buttonElement.style.backgroundColor = "#9ccc65";
         feedbackArea.style.color = "green";
@@ -236,6 +248,8 @@ function checkAnswer(selected, correct, buttonElement) {
             characterArea.classList.add("anim-dance");
         }, 10);
     } else {
+        wrongAnswersQueue.push(currentQuestion);
+
         buttonElement.style.backgroundColor = "#ef5350";
         feedbackArea.style.color = "red";
         feedbackArea.innerText = `Oops! The answer was: ${correct}`;
@@ -247,7 +261,6 @@ function checkAnswer(selected, correct, buttonElement) {
     }
 
     updateStatusBar();
-    currentQuestionIndex++;
     nextBtn.style.display = "block";
 }
 
