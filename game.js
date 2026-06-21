@@ -2,7 +2,6 @@ let allLessonsData = {};
 let currentQuizData = [];
 let currentQuestionIndex = 0;
 let score = 0;
-let streak = 0;
 let milestoneReached = 0;
 let lastCreatureQuestion = -5;
 
@@ -21,7 +20,6 @@ const totalQNum = document.getElementById("total-q-num");
 const nextBtn = document.getElementById("next-btn");
 const characterArea = document.getElementById("character-area");
 const errorMsg = document.getElementById("error-msg");
-const streakDisplay = document.getElementById("streak-display");
 const voyageShip = document.getElementById("voyage-ship");
 
 function shuffleArray(array) {
@@ -91,20 +89,6 @@ function spawnSeaCreature() {
 }
 
 function updateStatusBar() {
-    if (streak >= 5) {
-        streakDisplay.innerText = `🔥🔥🔥 ×${streak}`;
-        voyageShip.style.animationDuration = '0.7s';
-    } else if (streak >= 3) {
-        streakDisplay.innerText = `🔥🔥 ×${streak}`;
-        voyageShip.style.animationDuration = '1.1s';
-    } else if (streak >= 2) {
-        streakDisplay.innerText = `🔥 ×${streak}`;
-        voyageShip.style.animationDuration = '1.6s';
-    } else {
-        streakDisplay.innerText = "";
-        voyageShip.style.animationDuration = '2.2s';
-    }
-
     scoreCount.innerText = score;
 }
 
@@ -163,11 +147,9 @@ function buildMenu() {
 
 function initGame() {
     score = 0;
-    streak = 0;
     currentQuestionIndex = 0;
     milestoneReached = 0;
     lastCreatureQuestion = -5;
-    voyageShip.style.animationDuration = '2.2s';
     updateStatusBar();
     updateVoyagePath();
 }
@@ -243,26 +225,17 @@ function checkAnswer(selected, correct, buttonElement) {
     characterArea.className = "";
 
     if (selected === correct) {
-        streak++;
-        const bonus = streak >= 5 ? 2 : streak >= 3 ? 1 : 0;
-        const coinsEarned = 1 + bonus;
-        score += coinsEarned;
+        score += 1;
 
         buttonElement.style.backgroundColor = "#9ccc65";
         feedbackArea.style.color = "green";
-        let feedbackText = `Correct! +${coinsEarned} 🪙`;
-        if (streak >= 5) feedbackText += "  🔥🔥🔥 MEGA COMBO!";
-        else if (streak >= 3) feedbackText += "  🔥🔥 COMBO BONUS!";
-        else if (streak >= 2) feedbackText += "  🔥 Streak!";
-        feedbackArea.innerText = feedbackText;
+        feedbackArea.innerText = `Correct! +1 🪙`;
 
         setTimeout(() => {
             characterArea.innerText = "🕺🏴‍☠️✨";
             characterArea.classList.add("anim-dance");
         }, 10);
     } else {
-        streak = 0;
-
         buttonElement.style.backgroundColor = "#ef5350";
         feedbackArea.style.color = "red";
         feedbackArea.innerText = `Oops! The answer was: ${correct}`;
