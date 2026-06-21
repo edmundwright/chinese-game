@@ -5,91 +5,244 @@ let wrongAnswersQueue = [];
 let totalSteps = 0;
 let stepsCompleted = 0;
 let score = 0;
-let milestoneReached = 0;
-let questionsAsked = 0;
-let lastCreatureQuestion = -5;
 
-const SEA_CREATURES = ['🐬', '🐋', '🐙', '🦑', '🦈', '🐠', '🦀', '🐡', '🦭', '🐢'];
+let gridCols = 0, gridRows = 0;
+let shipRow = 0, shipCol = 0;
+let portRow = 0, portCol = 0;
+let grid = [];
+let visitedIslands = new Set();
+let originalQuestions = [];
+let gamePhase = 'navigating'; // 'navigating' | 'answering' | 'end'
+let pendingMove = null;
 
-// DOM Elements
-const menuArea = document.getElementById("menu-area");
-const gameArea = document.getElementById("game-area");
-const subtitle = document.getElementById("subtitle");
-const questionArea = document.getElementById("question-area");
-const optionsArea = document.getElementById("options-area");
-const feedbackArea = document.getElementById("feedback");
-const scoreCount = document.getElementById("score-count");
-const currentQNum = document.getElementById("current-q-num");
-const totalQNum = document.getElementById("total-q-num");
-const nextBtn = document.getElementById("next-btn");
-const characterArea = document.getElementById("character-area");
-const errorMsg = document.getElementById("error-msg");
-const voyageShip = document.getElementById("voyage-ship");
+const MONSTER_EMOJIS = ['🦑', '🦈', '🐙', '👾', '🦀'];
 
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
+const menuArea      = document.getElementById("menu-area");
+const gameArea      = document.getElementById("game-area");
+const subtitle      = document.getElementById("subtitle");
+const questionArea  = document.getElementById("question-area");
+const optionsArea   = document.getElementById("options-area");
+const feedbackArea  = document.getElementById("feedback");
+const scoreCount    = document.getElementById("score-count");
+const stepCount     = document.getElementById("step-count");
+const gridContainer = document.getElementById("grid-container");
+const characterArea   = document.getElementById("character-area");
+const errorMsg        = document.getElementById("error-msg");
+
+const COMPASS = [
+    { id: 'btn-up',    dr: -1, dc:  0 },
+    { id: 'btn-down',  dr:  1, dc:  0 },
+    { id: 'btn-left',  dr:  0, dc: -1 },
+    { id: 'btn-right', dr:  0, dc:  1 },
+];
+
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-    return array;
+    return arr;
 }
 
-function updateVoyagePath() {
-    const pct = totalSteps > 0 ? 5 + (stepsCompleted / totalSteps) * 90 : 5;
-    voyageShip.style.left = pct + "%";
+function buildGrid(rows, cols, sR, sC, pR, pC) {
+    const g = Array.from({ length: rows }, () =>
+        Array.from({ length: cols }, () => ({ type: 'water', emoji: '🌊' }))
+    );
+    g[sR][sC] = { type: 'start', emoji: '⚓' };
+    g[pR][pC] = { type: 'port',  emoji: '🏠' };
 
-    if (milestoneReached < 1 && pct > 35) {
-        milestoneReached = 1;
-        triggerIslandCelebration('island-1', '⚓ Land Ho! First island!');
-    } else if (milestoneReached < 2 && pct > 65) {
-        milestoneReached = 2;
-        triggerIslandCelebration('island-2', '🌟 Treasure is close!');
+    const available = [];
+    for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++)
+            if (g[r][c].type === 'water') available.push([r, c]);
+    shuffleArray(available);
+
+    const numIslands  = Math.max(2, Math.floor(totalSteps / 4));
+    const numMonsters = Math.max(1, Math.floor(totalSteps / 5));
+    let idx = 0;
+
+    for (let i = 0; i < numIslands && idx < available.length; i++, idx++) {
+        const [r, c] = available[idx];
+        g[r][c] = { type: 'island', emoji: '🏝️' };
     }
-
-    if (stepsCompleted > 0) createWakeSparkle(pct);
-}
-
-function triggerIslandCelebration(islandId, message) {
-    const island = document.getElementById(islandId);
-    if (island) {
-        island.classList.remove('island-pop');
-        void island.offsetWidth;
-        island.classList.add('island-pop');
-        island.addEventListener('animationend', () => island.classList.remove('island-pop'), { once: true });
+    for (let i = 0; i < numMonsters && idx < available.length; i++, idx++) {
+        const [r, c] = available[idx];
+        g[r][c] = { type: 'monster', emoji: MONSTER_EMOJIS[i % MONSTER_EMOJIS.length] };
     }
-    const voyagePath = document.getElementById('voyage-path');
-    const msg = document.createElement('div');
-    msg.className = 'milestone-msg';
-    msg.innerText = message;
-    voyagePath.appendChild(msg);
-    setTimeout(() => msg.remove(), 2400);
+    return g;
 }
 
-function createWakeSparkle(pct) {
-    const path = document.getElementById('voyage-path');
-    const sparkle = document.createElement('div');
-    sparkle.className = 'wake-sparkle';
-    sparkle.innerText = '✨';
-    sparkle.style.left = Math.max(2, pct - 4 - Math.random() * 3) + '%';
-    sparkle.style.top = (20 + Math.random() * 55) + '%';
-    path.appendChild(sparkle);
-    setTimeout(() => sparkle.remove(), 750);
+function renderGrid() {
+    gridContainer.innerHTML = '';
+    gridContainer.style.gridTemplateColumns = `repeat(${gridCols}, 40px)`;
+
+    for (let r = 0; r < gridRows; r++) {
+        for (let c = 0; c < gridCols; c++) {
+            const div = document.createElement('div');
+            div.className = 'grid-cell';
+
+            if (r === shipRow && c === shipCol) {
+                div.classList.add('cell-ship');
+                div.textContent = '⛵';
+            } else {
+                const cd = grid[r][c];
+                div.classList.add('cell-' + cd.type);
+                if (cd.type === 'island' && visitedIslands.has(`${r},${c}`))
+                    div.classList.add('cell-depleted');
+                div.textContent = cd.emoji;
+            }
+            gridContainer.appendChild(div);
+        }
+    }
 }
 
-function spawnSeaCreature() {
-    const path = document.getElementById('voyage-path');
-    const creature = document.createElement('div');
-    creature.className = 'sea-creature';
-    creature.style.left = (10 + Math.random() * 75) + '%';
-    creature.innerText = SEA_CREATURES[Math.floor(Math.random() * SEA_CREATURES.length)];
-    path.appendChild(creature);
-    setTimeout(() => creature.remove(), 1900);
+function updateCompass() {
+    const active = gamePhase === 'navigating';
+    COMPASS.forEach(({ id, dr, dc }) => {
+        const el = document.getElementById(id);
+        const newR = shipRow + dr, newC = shipCol + dc;
+        const valid = newR >= 0 && newR < gridRows && newC >= 0 && newC < gridCols;
+        el.disabled = !active || !valid;
+    });
 }
 
 function updateStatusBar() {
-    scoreCount.innerText = score;
-    currentQNum.innerText = Math.min(stepsCompleted + 1, totalSteps);
-    totalQNum.innerText = totalSteps;
+    scoreCount.textContent = score;
+    stepCount.textContent = stepsCompleted;
+}
+
+function pickDirection(dr, dc) {
+    if (gamePhase !== 'navigating') return;
+    const newR = shipRow + dr, newC = shipCol + dc;
+    if (newR < 0 || newR >= gridRows || newC < 0 || newC >= gridCols) return;
+
+    pendingMove = { dr, dc, newRow: newR, newCol: newC };
+    gamePhase = 'answering';
+    updateCompass();
+    loadQuestion();
+}
+
+function loadQuestion() {
+    feedbackArea.textContent = '';
+    feedbackArea.style.color = '';
+    optionsArea.innerHTML = '';
+    characterArea.textContent = '🏴‍☠️';
+    characterArea.className = '';
+
+    if (questionPool.length === 0) {
+        if (wrongAnswersQueue.length > 0) {
+            questionPool = shuffleArray([...wrongAnswersQueue]);
+            wrongAnswersQueue = [];
+        } else {
+            questionPool = shuffleArray([...originalQuestions]);
+        }
+    }
+    currentQuestion = questionPool.shift();
+
+    const dirEmoji = { '-1,0': '⬆️', '1,0': '⬇️', '0,-1': '⬅️', '0,1': '➡️' };
+    const dirKey = `${pendingMove.dr},${pendingMove.dc}`;
+    const target = grid[pendingMove.newRow][pendingMove.newCol];
+
+    questionArea.innerHTML =
+        `<div class="move-hint">Sailing ${dirEmoji[dirKey]} into ${target.emoji}</div>` +
+        `<div class="q-text">${currentQuestion.question}</div>`;
+
+    shuffleArray([...currentQuestion.options]).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(opt, btn);
+        optionsArea.appendChild(btn);
+    });
+}
+
+function checkAnswer(selected, btnEl) {
+    const correct = currentQuestion.answer;
+    optionsArea.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+
+    if (selected === correct) {
+        btnEl.style.backgroundColor = '#9ccc65';
+        shipRow = pendingMove.newRow;
+        shipCol = pendingMove.newCol;
+        stepsCompleted++;
+
+        const cell = grid[shipRow][shipCol];
+        const islandKey = `${shipRow},${shipCol}`;
+        let coinDelta = 1;
+        let cellMsg = '';
+
+        if (cell.type === 'island' && !visitedIslands.has(islandKey)) {
+            visitedIslands.add(islandKey);
+            coinDelta = 3;
+            cellMsg = ' 🏝️ Island treasure! (+3)';
+        } else if (cell.type === 'monster') {
+            coinDelta = -1;
+            cellMsg = ` ${cell.emoji} Sea monster! (-1)`;
+        }
+
+        score = Math.max(0, score + coinDelta);
+        feedbackArea.style.color = coinDelta >= 0 ? 'green' : '#c62828';
+        feedbackArea.textContent = `Correct! ${coinDelta >= 0 ? '+' : ''}${coinDelta} 🪙${cellMsg}`;
+        setTimeout(() => {
+            characterArea.className = '';
+            void characterArea.offsetWidth;
+            characterArea.textContent = '🕺🏴‍☠️✨';
+            characterArea.classList.add('anim-dance');
+        }, 10);
+
+        renderGrid();
+        updateStatusBar();
+
+        if (shipRow === portRow && shipCol === portCol) {
+            showEndScreen();
+            return;
+        }
+
+        gamePhase = 'navigating';
+        pendingMove = null;
+    } else {
+        wrongAnswersQueue.push(currentQuestion);
+        btnEl.style.backgroundColor = '#ef5350';
+        optionsArea.querySelectorAll('.opt-btn').forEach(b => {
+            if (b.textContent === correct) b.style.backgroundColor = '#9ccc65';
+        });
+        feedbackArea.style.color = '#c62828';
+        feedbackArea.textContent = `Oops! Answer: ${correct}. You stay put.`;
+        setTimeout(() => {
+            characterArea.className = '';
+            void characterArea.offsetWidth;
+            characterArea.textContent = '😵‍💫🦜💨';
+            characterArea.classList.add('anim-dizzy');
+        }, 10);
+
+        gamePhase = 'navigating';
+        pendingMove = null;
+    }
+    updateCompass();
+}
+
+
+function showNavPrompt() {
+    questionArea.innerHTML =
+        `<div class="move-hint">Choose a direction to sail! ⛵</div>` +
+        `<div class="legend">🏠 Home port &nbsp;|&nbsp; 🏝️ Island +3🪙 &nbsp;|&nbsp; 🦑 Monster -1🪙</div>`;
+}
+
+function showEndScreen() {
+    gamePhase = 'end';
+    updateCompass();
+    characterArea.className = '';
+    setTimeout(() => {
+        characterArea.textContent = '🏆💰👑';
+        characterArea.classList.add('anim-dance');
+    }, 10);
+    questionArea.innerHTML =
+        `<div style="font-size:20px;text-align:center;line-height:1.5">` +
+        `🎉 You reached home port!<br>` +
+        `<strong>${score} 🪙</strong> collected in <strong>${stepsCompleted}</strong> moves` +
+        `<br><small style="color:#546e7a">(Optimal: ${totalSteps} moves)</small></div>`;
+    feedbackArea.textContent = '';
+    optionsArea.innerHTML = '';
 }
 
 async function loadAllData() {
@@ -100,8 +253,7 @@ async function loadAllData() {
         buildMenu();
     } catch (error) {
         menuArea.innerHTML = "";
-        errorMsg.innerHTML = "Ahoy! We couldn't load the 'questions.json' file.<br><br>" +
-        "Ensure your local web server is running.";
+        errorMsg.innerHTML = "Ahoy! We couldn't load the 'questions.json' file.<br><br>Ensure your local web server is running.";
         console.error(error);
     }
 }
@@ -109,14 +261,13 @@ async function loadAllData() {
 function buildMenu() {
     menuArea.innerHTML = "";
     const lessons = Object.keys(allLessonsData);
-
     lessons.forEach((lessonName, index) => {
         const group = document.createElement("div");
         group.className = "lesson-group";
 
         const label = document.createElement("div");
         label.className = "lesson-group-label";
-        label.innerText = lessonName;
+        label.textContent = lessonName;
         group.appendChild(label);
 
         const btnRow = document.createElement("div");
@@ -124,18 +275,16 @@ function buildMenu() {
 
         const soloBtn = document.createElement("button");
         soloBtn.className = "lesson-btn lesson-btn-solo";
-        soloBtn.innerText = "🗺️ This Lesson";
+        soloBtn.textContent = "🗺️ This Lesson";
         soloBtn.onclick = () => startLesson(lessonName);
         btnRow.appendChild(soloBtn);
 
         const cumulativeBtn = document.createElement("button");
         cumulativeBtn.className = "lesson-btn lesson-btn-cumulative";
+        cumulativeBtn.textContent = "🌊 All So Far";
         if (index === 0) {
-            cumulativeBtn.innerText = "🌊 All So Far";
             cumulativeBtn.disabled = true;
-            cumulativeBtn.title = "No prior lessons to combine with";
         } else {
-            cumulativeBtn.innerText = "🌊 All So Far";
             cumulativeBtn.onclick = () => startCumulativeLesson(lessonName, lessons.slice(0, index + 1));
         }
         btnRow.appendChild(cumulativeBtn);
@@ -149,119 +298,51 @@ function initGame(steps, questions) {
     score = 0;
     stepsCompleted = 0;
     totalSteps = steps;
+    originalQuestions = questions;
     questionPool = shuffleArray([...questions]);
     wrongAnswersQueue = [];
-    questionsAsked = 0;
-    milestoneReached = 0;
-    lastCreatureQuestion = -5;
+    visitedIslands = new Set();
+    gamePhase = 'navigating';
+    pendingMove = null;
+
+    // Grid: (cols-1)+(rows-1) = steps, so cols=floor(steps/2)+1, rows=ceil(steps/2)+1
+    gridCols = Math.floor(steps / 2) + 1;
+    gridRows = Math.ceil(steps / 2) + 1;
+    shipRow  = gridRows - 1;
+    shipCol  = 0;
+    portRow  = 0;
+    portCol  = gridCols - 1;
+
+    grid = buildGrid(gridRows, gridCols, shipRow, shipCol, portRow, portCol);
+    renderGrid();
+    updateCompass();
     updateStatusBar();
-    updateVoyagePath();
+    showNavPrompt();
+    optionsArea.innerHTML = '';
+    feedbackArea.textContent = '';
+    characterArea.textContent = '🏴‍☠️';
+    characterArea.className = '';
 }
 
 function startLesson(lessonName) {
     menuArea.style.display = "none";
     gameArea.style.display = "flex";
-    subtitle.innerText = `Currently Exploring: ${lessonName}`;
-
-    const questions = allLessonsData[lessonName];
-    initGame(questions.length, questions);
-    loadNextQuestion();
+    subtitle.textContent = `Sailing: ${lessonName}`;
+    initGame(allLessonsData[lessonName].length, allLessonsData[lessonName]);
 }
 
 function startCumulativeLesson(lessonName, lessonNames) {
     menuArea.style.display = "none";
     gameArea.style.display = "flex";
-    subtitle.innerText = `Cumulative Review up to: ${lessonName}`;
-
+    subtitle.textContent = `Cumulative Review: ${lessonName}`;
     const pool = lessonNames.flatMap(name => allLessonsData[name]);
     initGame(15, pool);
-    loadNextQuestion();
 }
 
 function returnToMenu() {
     gameArea.style.display = "none";
     menuArea.style.display = "grid";
-    subtitle.innerText = "Select your map to start the voyage!";
-}
-
-function loadNextQuestion() {
-    nextBtn.style.display = "none";
-    feedbackArea.innerText = "";
-    optionsArea.innerHTML = "";
-    characterArea.innerText = "🏴‍☠️";
-    characterArea.className = "";
-
-    if (stepsCompleted >= totalSteps) {
-        showEndScreen();
-        return;
-    }
-
-    // Refill from wrong answers if the current pool is exhausted
-    if (questionPool.length === 0) {
-        questionPool = shuffleArray([...wrongAnswersQueue]);
-        wrongAnswersQueue = [];
-    }
-
-    questionsAsked++;
-    if (questionsAsked - lastCreatureQuestion >= 3 && Math.random() < 0.5) {
-        lastCreatureQuestion = questionsAsked;
-        setTimeout(spawnSeaCreature, 500);
-    }
-
-    currentQuestion = questionPool.shift();
-    questionArea.innerText = currentQuestion.question;
-
-    const shuffledOptions = shuffleArray([...currentQuestion.options]);
-    shuffledOptions.forEach(option => {
-        const btn = document.createElement("button");
-        btn.className = "opt-btn";
-        btn.innerText = option;
-        btn.onclick = () => checkAnswer(option, currentQuestion.answer, btn);
-        optionsArea.appendChild(btn);
-    });
-}
-
-function showEndScreen() {
-    voyageShip.style.left = "95%";
-    questionArea.innerHTML = `🎉 You found the treasure! ${score} coins collected! 🎉`;
-    characterArea.innerText = "🏆💰👑";
-    characterArea.className = "";
-    setTimeout(() => characterArea.classList.add("anim-dance"), 10);
-}
-
-function checkAnswer(selected, correct, buttonElement) {
-    const allButtons = optionsArea.querySelectorAll(".opt-btn");
-    allButtons.forEach(btn => btn.disabled = true);
-    characterArea.className = "";
-
-    if (selected === correct) {
-        score += 1;
-        stepsCompleted++;
-        updateVoyagePath();
-
-        buttonElement.style.backgroundColor = "#9ccc65";
-        feedbackArea.style.color = "green";
-        feedbackArea.innerText = `Correct! +1 🪙`;
-
-        setTimeout(() => {
-            characterArea.innerText = "🕺🏴‍☠️✨";
-            characterArea.classList.add("anim-dance");
-        }, 10);
-    } else {
-        wrongAnswersQueue.push(currentQuestion);
-
-        buttonElement.style.backgroundColor = "#ef5350";
-        feedbackArea.style.color = "red";
-        feedbackArea.innerText = `Oops! The answer was: ${correct}`;
-
-        setTimeout(() => {
-            characterArea.innerText = "😵‍💫🦜💨";
-            characterArea.classList.add("anim-dizzy");
-        }, 10);
-    }
-
-    updateStatusBar();
-    nextBtn.style.display = "block";
+    subtitle.textContent = "Select your map to start the voyage!";
 }
 
 loadAllData();
