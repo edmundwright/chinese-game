@@ -17,23 +17,7 @@ let pendingMove = null;
 
 const MONSTER_EMOJIS = ['🦑', '🦈', '🐙', '🐡', '🦀'];
 
-const PARROT_JOKES = [
-    { setup: "Why are pirates called pirates?",                         punchline: "Because they ARRR! 🏴‍☠️" },
-    { setup: "What's a pirate's favourite letter?",                     punchline: "You'd think it's R… but it's really the C! 🌊" },
-    { setup: "What do you call a pirate who skips class?",              punchline: "Captain Hooky! 🪝" },
-    { setup: "How much did the pirate pay for his earrings?",           punchline: "A buccaneer! (A buck-an-ear!) 💰" },
-    { setup: "What's a sea monster's favourite meal?",                  punchline: "Fish and ships! 🚢" },
-    { setup: "Why did the pirate go to the Apple store?",               punchline: "To get a new iPatch! 📱" },
-    { setup: "What do you call a sleeping dinosaur?",                   punchline: "A dino-snore! 🦕" },
-    { setup: "Why did the banana go to the doctor?",                    punchline: "It wasn't peeling well! 🍌" },
-    { setup: "Why don't eggs tell jokes?",                              punchline: "They'd crack each other up! 🥚" },
-    { setup: "What do you call cheese that isn't yours?",               punchline: "Nacho cheese! 🧀" },
-    { setup: "Why did the bicycle fall over?",                          punchline: "It was two-tired! 🚲" },
-    { setup: "What do you call a bear with no teeth?",                  punchline: "A gummy bear! 🐻" },
-    { setup: "Why can't you play cards on a small boat?",               punchline: "Because someone is always sitting on the deck! 🃏" },
-    { setup: "What do pirates eat for breakfast?",                      punchline: "Booty-Os! 🥣" },
-    { setup: "Why did the math book look so sad?",                      punchline: "Because it had too many problems! 📚" },
-];
+let PARROT_JOKES = [];
 
 const menuArea      = document.getElementById("menu-area");
 const gameArea      = document.getElementById("game-area");
@@ -308,13 +292,15 @@ function showEndScreen() {
 
 async function loadAllData() {
     try {
-        const response = await fetch('questions.json');
-        if (!response.ok) throw new Error("Could not load questions.json.");
-        allLessonsData = await response.json();
+        const [qRes, jRes] = await Promise.all([fetch('questions.json'), fetch('jokes.json')]);
+        if (!qRes.ok) throw new Error("Could not load questions.json.");
+        if (!jRes.ok) throw new Error("Could not load jokes.json.");
+        allLessonsData = await qRes.json();
+        PARROT_JOKES = await jRes.json();
         buildMenu();
     } catch (error) {
         menuArea.innerHTML = "";
-        errorMsg.innerHTML = "Ahoy! We couldn't load the 'questions.json' file.<br><br>Ensure your local web server is running.";
+        errorMsg.innerHTML = "Ahoy! We couldn't load the game data files.<br><br>Ensure your local web server is running.";
         console.error(error);
     }
 }
