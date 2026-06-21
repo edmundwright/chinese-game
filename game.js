@@ -173,8 +173,9 @@ function checkAnswer(selected, btnEl) {
         const islandKey = `${shipRow},${shipCol}`;
         let coinDelta = 1;
         let cellMsg = '';
+        const isNewIsland = cell.type === 'island' && !visitedIslands.has(islandKey);
 
-        if (cell.type === 'island' && !visitedIslands.has(islandKey)) {
+        if (isNewIsland) {
             visitedIslands.add(islandKey);
             coinDelta = 3;
             cellMsg = ' 🏝️ Island treasure! (+3)';
@@ -195,6 +196,9 @@ function checkAnswer(selected, btnEl) {
 
         renderGrid();
         updateStatusBar();
+
+        if (cell.type === 'monster') triggerShipKnockback();
+        if (isNewIsland) triggerFirework(shipRow, shipCol);
 
         if (shipRow === portRow && shipCol === portCol) {
             showEndScreen();
@@ -231,6 +235,35 @@ function showNavPrompt() {
         `<div class="legend">🏠 Home port &nbsp;|&nbsp; 🏝️ Island +3🪙 &nbsp;|&nbsp; 🦑 Monster -1🪙</div>`;
 }
 
+function launchMassiveFirework() {
+    const colors = ['#ffeb3b','#ff4081','#00e5ff','#76ff03','#ff6d00','#ea80fc','#ffffff','#ff1744','#00e676'];
+    const W = window.innerWidth, H = window.innerHeight;
+    const origins = [
+        [W * 0.25, H * 0.3], [W * 0.75, H * 0.3], [W * 0.5, H * 0.2],
+        [W * 0.15, H * 0.5], [W * 0.85, H * 0.5], [W * 0.5,  H * 0.45],
+    ];
+    origins.forEach(([cx, cy], wave) => {
+        setTimeout(() => {
+            for (let i = 0; i < 28; i++) {
+                const angle = (i / 28) * Math.PI * 2;
+                const dist = 80 + Math.random() * 80;
+                const size = 8 + Math.random() * 10;
+                const p = document.createElement('div');
+                p.className = 'fw-particle';
+                p.style.cssText =
+                    `left:${cx}px;top:${cy}px;` +
+                    `width:${size}px;height:${size}px;` +
+                    `background:${colors[i % colors.length]};` +
+                    `--dx:${(Math.cos(angle) * dist).toFixed(1)}px;` +
+                    `--dy:${(Math.sin(angle) * dist).toFixed(1)}px;` +
+                    `animation-duration:${0.9 + Math.random() * 0.5}s`;
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1500);
+            }
+        }, wave * 180);
+    });
+}
+
 function showEndScreen() {
     gamePhase = 'end';
     updateCompass();
@@ -242,10 +275,12 @@ function showEndScreen() {
     questionArea.innerHTML =
         `<div style="font-size:20px;text-align:center;line-height:1.5">` +
         `🎉 You reached home port!<br>` +
-        `<strong>${score} 🪙</strong> collected in <strong>${stepsCompleted}</strong> moves` +
-        `<br><small style="color:#546e7a">(Optimal: ${totalSteps} moves)</small></div>`;
+        `<strong>${score} 🪙</strong> collected in <strong>${stepsCompleted}</strong> moves</div>`;
     feedbackArea.textContent = '';
     optionsArea.innerHTML = '';
+    launchMassiveFirework();
+    setTimeout(launchMassiveFirework, 1200);
+    setTimeout(launchMassiveFirework, 2400);
 }
 
 async function loadAllData() {
@@ -346,6 +381,33 @@ function returnToMenu() {
     gameArea.style.display = "none";
     menuArea.style.display = "grid";
     subtitle.textContent = "Select your map to start the voyage!";
+}
+
+function triggerShipKnockback() {
+    const el = gridContainer.querySelector('.cell-ship .ship-emoji');
+    if (!el) return;
+    el.classList.add('ship-hit');
+    el.addEventListener('animationend', () => el.classList.remove('ship-hit'), { once: true });
+}
+
+function triggerFirework(row, col) {
+    const cells = gridContainer.querySelectorAll('.grid-cell');
+    const cell = cells[row * gridCols + col];
+    if (!cell) return;
+    const rect = cell.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = ['#ffeb3b','#ff4081','#00e5ff','#76ff03','#ff6d00','#ea80fc','#ffffff'];
+    for (let i = 0; i < 14; i++) {
+        const angle = (i / 14) * Math.PI * 2;
+        const dist = 45 + Math.random() * 35;
+        const p = document.createElement('div');
+        p.className = 'fw-particle';
+        p.style.cssText = `left:${cx}px;top:${cy}px;background:${colors[i % colors.length]};` +
+            `--dx:${(Math.cos(angle) * dist).toFixed(1)}px;--dy:${(Math.sin(angle) * dist).toFixed(1)}px`;
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 750);
+    }
 }
 
 document.addEventListener('keydown', e => {
