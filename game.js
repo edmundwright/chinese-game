@@ -17,6 +17,24 @@ let pendingMove = null;
 
 const MONSTER_EMOJIS = ['🦑', '🦈', '🐙', '🐡', '🦀'];
 
+const PARROT_JOKES = [
+    { setup: "Why are pirates called pirates?",                         punchline: "Because they ARRR! 🏴‍☠️" },
+    { setup: "What's a pirate's favourite letter?",                     punchline: "You'd think it's R… but it's really the C! 🌊" },
+    { setup: "What do you call a pirate who skips class?",              punchline: "Captain Hooky! 🪝" },
+    { setup: "How much did the pirate pay for his earrings?",           punchline: "A buccaneer! (A buck-an-ear!) 💰" },
+    { setup: "What's a sea monster's favourite meal?",                  punchline: "Fish and ships! 🚢" },
+    { setup: "Why did the pirate go to the Apple store?",               punchline: "To get a new iPatch! 📱" },
+    { setup: "What do you call a sleeping dinosaur?",                   punchline: "A dino-snore! 🦕" },
+    { setup: "Why did the banana go to the doctor?",                    punchline: "It wasn't peeling well! 🍌" },
+    { setup: "Why don't eggs tell jokes?",                              punchline: "They'd crack each other up! 🥚" },
+    { setup: "What do you call cheese that isn't yours?",               punchline: "Nacho cheese! 🧀" },
+    { setup: "Why did the bicycle fall over?",                          punchline: "It was two-tired! 🚲" },
+    { setup: "What do you call a bear with no teeth?",                  punchline: "A gummy bear! 🐻" },
+    { setup: "Why can't you play cards on a small boat?",               punchline: "Because someone is always sitting on the deck! 🃏" },
+    { setup: "What do pirates eat for breakfast?",                      punchline: "Booty-Os! 🥣" },
+    { setup: "Why did the math book look so sad?",                      punchline: "Because it had too many problems! 📚" },
+];
+
 const menuArea      = document.getElementById("menu-area");
 const gameArea      = document.getElementById("game-area");
 const subtitle      = document.getElementById("subtitle");
@@ -63,7 +81,8 @@ function buildGrid(rows, cols, sR, sC, pR, pC) {
 
     for (let i = 0; i < numIslands && idx < available.length; i++, idx++) {
         const [r, c] = available[idx];
-        g[r][c] = { type: 'island', emoji: '🏝️' };
+        const isParrot = Math.random() < 0.4;
+        g[r][c] = { type: isParrot ? 'parrot-island' : 'island', emoji: '🏝️' };
     }
     for (let i = 0; i < numMonsters && idx < available.length; i++, idx++) {
         const [r, c] = available[idx];
@@ -87,10 +106,12 @@ function renderGrid() {
             } else {
                 const cd = grid[r][c];
                 div.classList.add('cell-' + cd.type);
-                if (cd.type === 'island' && visitedIslands.has(`${r},${c}`))
+                if ((cd.type === 'island' || cd.type === 'parrot-island') && visitedIslands.has(`${r},${c}`))
                     div.classList.add('cell-depleted');
                 if (cd.type === 'monster')
                     div.innerHTML = `<span class="creature-emoji">${cd.emoji}</span>`;
+                else if (cd.type === 'parrot-island')
+                    div.innerHTML = `🏝️<span class="parrot-on-island">🦜</span>`;
                 else if (cd.type !== 'water')
                     div.textContent = cd.emoji;
             }
@@ -116,6 +137,7 @@ function updateStatusBar() {
 
 function pickDirection(dr, dc) {
     if (gamePhase !== 'navigating') return;
+    if (document.getElementById('parrot-popup')) return;
     const newR = shipRow + dr, newC = shipCol + dc;
     if (newR < 0 || newR >= gridRows || newC < 0 || newC >= gridCols) return;
 
@@ -173,7 +195,7 @@ function checkAnswer(selected, btnEl) {
         const islandKey = `${shipRow},${shipCol}`;
         let coinDelta = 1;
         let cellMsg = '';
-        const isNewIsland = cell.type === 'island' && !visitedIslands.has(islandKey);
+        const isNewIsland = (cell.type === 'island' || cell.type === 'parrot-island') && !visitedIslands.has(islandKey);
 
         if (isNewIsland) {
             visitedIslands.add(islandKey);
@@ -199,6 +221,7 @@ function checkAnswer(selected, btnEl) {
 
         if (cell.type === 'monster') triggerShipKnockback();
         if (isNewIsland) triggerFirework(shipRow, shipCol);
+        if (isNewIsland && cell.type === 'parrot-island') showParrotJoke();
 
         if (shipRow === portRow && shipCol === portCol) {
             showEndScreen();
@@ -381,6 +404,33 @@ function returnToMenu() {
     gameArea.style.display = "none";
     menuArea.style.display = "grid";
     subtitle.textContent = "Select your map to start the voyage!";
+}
+
+function showParrotJoke() {
+    const joke = PARROT_JOKES[Math.floor(Math.random() * PARROT_JOKES.length)];
+    const overlay = document.createElement('div');
+    overlay.id = 'parrot-popup';
+    overlay.innerHTML = `
+        <div id="parrot-popup-inner">
+            <div style="font-size:72px;display:inline-block;animation:ship-bob 1s ease-in-out infinite">🦜</div>
+            <div style="font-size:17px;color:#00838f;font-weight:bold;margin:8px 0">Squawk! I have a joke!</div>
+            <div style="font-size:17px;color:#37474f;margin:12px 0;line-height:1.5">${joke.setup}</div>
+            <div id="parrot-punchline" style="font-size:17px;color:#ff8f00;font-weight:bold;margin:12px 0;line-height:1.5;display:none">${joke.punchline}</div>
+            <button class="parrot-popup-btn" onclick="revealParrotPunchline()">Tell me the answer! 🦜</button>
+        </div>`;
+    document.body.appendChild(overlay);
+}
+
+function revealParrotPunchline() {
+    document.getElementById('parrot-punchline').style.display = 'block';
+    const btn = document.querySelector('.parrot-popup-btn');
+    btn.textContent = 'Ha! OK OK! 😄';
+    btn.onclick = dismissParrotJoke;
+}
+
+function dismissParrotJoke() {
+    const popup = document.getElementById('parrot-popup');
+    if (popup) popup.remove();
 }
 
 function triggerShipKnockback() {
