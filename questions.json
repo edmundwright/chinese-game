@@ -110,7 +110,6 @@
         { "question": "If you combine 'z', 'u', and 'o', what Pinyin do you get?", "options": ["zuo", "zou", "zhao"], "answer": "zuo" },
         { "question": "What does the character 坐 (zuò) mean?", "options": ["Stand", "Walk", "Sit"], "answer": "Sit" },
         { "question": "Which Pinyin matches 'Wipe' (擦)?", "options": ["cā", "sǎ", "chā"], "answer": "cā" },
-        { "question": "In the poem 'Painting' (画), what has color from afar? (远看山有色)", "options": ["Water (水)", "Mountains (山)", "Birds (鸟)"], "answer": "Mountains (山)" },
         { "question": "What does 摔倒 (shuāi dǎo) mean?", "options": ["Stand up", "Run fast", "Fall down"], "answer": "Fall down" },
         { "question": "Which character means 'Pain' or 'Ache'?", "options": ["喊 (hǎn)", "认 (rèn)", "痛 (tòng)"], "answer": "痛 (tòng)" },
         { "question": "What does 认真 (rèn zhēn) mean?", "options": ["Serious / Earnest", "Naughty", "Happy"], "answer": "Serious / Earnest" },
