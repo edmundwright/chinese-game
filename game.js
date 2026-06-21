@@ -15,7 +15,7 @@ let originalQuestions = [];
 let gamePhase = 'navigating'; // 'navigating' | 'answering' | 'end'
 let pendingMove = null;
 
-const MONSTER_EMOJIS = ['🦑', '🦈', '🐙', '👾', '🦀'];
+const MONSTER_EMOJIS = ['🦑', '🦈', '🐙', '🐡', '🦀'];
 
 const menuArea      = document.getElementById("menu-area");
 const gameArea      = document.getElementById("game-area");
@@ -57,8 +57,8 @@ function buildGrid(rows, cols, sR, sC, pR, pC) {
             if (g[r][c].type === 'water') available.push([r, c]);
     shuffleArray(available);
 
-    const numIslands  = Math.max(2, Math.floor(totalSteps / 4));
-    const numMonsters = Math.max(1, Math.floor(totalSteps / 5));
+    const numIslands  = Math.max(4, Math.floor(totalSteps / 2));
+    const numMonsters = Math.max(3, Math.floor(totalSteps / 3));
     let idx = 0;
 
     for (let i = 0; i < numIslands && idx < available.length; i++, idx++) {
@@ -347,5 +347,11 @@ function returnToMenu() {
     menuArea.style.display = "grid";
     subtitle.textContent = "Select your map to start the voyage!";
 }
+
+document.addEventListener('keydown', e => {
+    const map = { ArrowUp: [-1,0], ArrowDown: [1,0], ArrowLeft: [0,-1], ArrowRight: [0,1] };
+    const dir = map[e.key];
+    if (dir) { e.preventDefault(); pickDirection(dir[0], dir[1]); }
+});
 
 loadAllData();
