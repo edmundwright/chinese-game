@@ -74,7 +74,7 @@ function buildGrid(rows, cols, sR, sC, pR, pC) {
 
 function renderGrid() {
     gridContainer.innerHTML = '';
-    gridContainer.style.gridTemplateColumns = `repeat(${gridCols}, 40px)`;
+    gridContainer.style.gridTemplateColumns = `repeat(${gridCols}, 54px)`;
 
     for (let r = 0; r < gridRows; r++) {
         for (let c = 0; c < gridCols; c++) {
@@ -83,13 +83,13 @@ function renderGrid() {
 
             if (r === shipRow && c === shipCol) {
                 div.classList.add('cell-ship');
-                div.textContent = '⛵';
+                div.innerHTML = '<span class="ship-emoji">⛵</span>';
             } else {
                 const cd = grid[r][c];
                 div.classList.add('cell-' + cd.type);
                 if (cd.type === 'island' && visitedIslands.has(`${r},${c}`))
                     div.classList.add('cell-depleted');
-                div.textContent = cd.emoji;
+                if (cd.type !== 'water') div.textContent = cd.emoji;
             }
             gridContainer.appendChild(div);
         }
