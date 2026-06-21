@@ -89,7 +89,10 @@ function renderGrid() {
                 div.classList.add('cell-' + cd.type);
                 if (cd.type === 'island' && visitedIslands.has(`${r},${c}`))
                     div.classList.add('cell-depleted');
-                if (cd.type !== 'water') div.textContent = cd.emoji;
+                if (cd.type === 'monster')
+                    div.innerHTML = `<span class="creature-emoji">${cd.emoji}</span>`;
+                else if (cd.type !== 'water')
+                    div.textContent = cd.emoji;
             }
             gridContainer.appendChild(div);
         }
