@@ -75,6 +75,7 @@ const feedbackArea  = document.getElementById("feedback");
 const scoreCount    = document.getElementById("score-count");
 const stepCount     = document.getElementById("step-count");
 const gridContainer = document.getElementById("grid-container");
+const gridScroll    = document.getElementById("grid-scroll");
 const characterArea = document.getElementById("character-area");
 const errorMsg      = document.getElementById("error-msg");
 
@@ -128,7 +129,19 @@ function buildGrid(rows, cols, sR, sC, pR, pC) {
 
 function renderGrid() {
     gridContainer.innerHTML = '';
-    gridContainer.style.gridTemplateColumns = `repeat(${gridCols}, 54px)`;
+
+    const GAP = 3, PAD = 2;
+    const compassEl = document.getElementById('compass');
+    const gameLeft = gridScroll.parentElement;
+    const availH = gameLeft.clientHeight - compassEl.offsetHeight;
+    const availW = gameLeft.clientWidth;
+    const byHeight = Math.floor((availH - PAD - (gridRows - 1) * GAP) / gridRows);
+    const byWidth  = Math.floor((availW - PAD - (gridCols - 1) * GAP) / gridCols);
+    const cellSize = Math.min(54, Math.max(24, Math.min(byHeight, byWidth)));
+    const fontSize = Math.round(cellSize * 0.52);
+    gridContainer.style.setProperty('--cell-size', `${cellSize}px`);
+    gridContainer.style.setProperty('--cell-font', `${fontSize}px`);
+    gridContainer.style.gridTemplateColumns = `repeat(${gridCols}, ${cellSize}px)`;
 
     for (let r = 0; r < gridRows; r++) {
         for (let c = 0; c < gridCols; c++) {
