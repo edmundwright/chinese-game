@@ -12,6 +12,7 @@ const CELL = {
     PORT:          'port',
     ISLAND:        'island',
     PARROT_ISLAND: 'parrot-island',
+    MONKEY_ISLAND: 'monkey-island',
     MONSTER:       'monster',
 };
 
@@ -28,6 +29,8 @@ const CSS = {
     ANIM_DIZZY:            'anim-dizzy',
     FW_PARTICLE:           'fw-particle',
     PARROT_POPUP_BTN:      'parrot-popup-btn',
+    MONKEY_ON_ISLAND:      'monkey-on-island',
+    MONKEY_POPUP_BTN:      'monkey-popup-btn',
     LESSON_GROUP:          'lesson-group',
     LESSON_GROUP_LABEL:    'lesson-group-label',
     LESSON_GROUP_BTNS:     'lesson-group-btns',
@@ -39,6 +42,7 @@ const CSS = {
 const ID = {
     PARROT_POPUP:     'parrot-popup',
     PARROT_PUNCHLINE: 'parrot-punchline',
+    MONKEY_POPUP:     'monkey-popup',
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -63,6 +67,19 @@ let pendingMove = null;
 const MONSTER_EMOJIS = ['🦑', '🦈', '🐙', '🐡', '🦀'];
 
 let PARROT_JOKES = [];
+
+const MONKEY_MESSAGES = [
+    "Ooh ooh! I just did a HUGE poo behind that rock! Don't look! 💩",
+    "Ahh ahh! I threw my poo in the sea! It went SPLASH! 💩",
+    "Welcome to my island! I only eat bananas... and then I do ENORMOUS poos! 💩",
+    "Ooh ooh! Guess what I just sat in? Hint: it's VERY stinky! 💩",
+    "I accidentally poo-ed on a crab! It was NOT happy! 💩",
+    "Ahh ahh! I'm the KING of this island... and the king of the smelliest poos! 💩",
+    "Did you know monkeys can poo while swinging through trees? I just did! 💩",
+    "My bottom just made the loudest noise... and then came the POO! 💩",
+    "I sat on a seagull's head! And then I did a poo! Ooh ooh! 💩",
+    "This whole island smells because of MY poos! Ooh ooh! Are you proud of me?! 💩",
+];
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 
@@ -111,14 +128,15 @@ function buildGrid(rows, cols, sR, sC, pR, pC) {
             if (g[r][c].type === CELL.WATER) available.push([r, c]);
     shuffleArray(available);
 
-    const numIslands  = Math.max(4, Math.floor(totalSteps / 2));
+    const numIslands  = Math.max(6, Math.floor(totalSteps * 0.85));
     const numMonsters = Math.max(3, Math.floor(totalSteps / 3));
     let idx = 0;
 
     for (let i = 0; i < numIslands && idx < available.length; i++, idx++) {
         const [r, c] = available[idx];
-        const isParrot = Math.random() < 0.4;
-        g[r][c] = { type: isParrot ? CELL.PARROT_ISLAND : CELL.ISLAND, emoji: '🏝️' };
+        const roll = Math.random();
+        const type = roll < 0.3 ? CELL.PARROT_ISLAND : roll < 0.6 ? CELL.MONKEY_ISLAND : CELL.ISLAND;
+        g[r][c] = { type, emoji: '🏝️' };
     }
     for (let i = 0; i < numMonsters && idx < available.length; i++, idx++) {
         const [r, c] = available[idx];
@@ -137,7 +155,7 @@ function renderGrid() {
     const availW = gameLeft.clientWidth;
     const byHeight = Math.floor((availH - PAD - (gridRows - 1) * GAP) / gridRows);
     const byWidth  = Math.floor((availW - PAD - (gridCols - 1) * GAP) / gridCols);
-    const cellSize = Math.min(54, Math.max(24, Math.min(byHeight, byWidth)));
+    const cellSize = Math.max(24, Math.min(byHeight, byWidth));
     const fontSize = Math.round(cellSize * 0.52);
     gridContainer.style.setProperty('--cell-size', `${cellSize}px`);
     gridContainer.style.setProperty('--cell-font', `${fontSize}px`);
@@ -154,12 +172,14 @@ function renderGrid() {
             } else {
                 const cd = grid[r][c];
                 div.classList.add('cell-' + cd.type);
-                if ((cd.type === CELL.ISLAND || cd.type === CELL.PARROT_ISLAND) && visitedIslands.has(`${r},${c}`))
+                if ((cd.type === CELL.ISLAND || cd.type === CELL.PARROT_ISLAND || cd.type === CELL.MONKEY_ISLAND) && visitedIslands.has(`${r},${c}`))
                     div.classList.add(CSS.CELL_DEPLETED);
                 if (cd.type === CELL.MONSTER)
                     div.innerHTML = `<span class="${CSS.CREATURE_EMOJI}">${cd.emoji}</span>`;
                 else if (cd.type === CELL.PARROT_ISLAND)
                     div.innerHTML = `🏝️<span class="${CSS.PARROT_ON_ISLAND}">🦜</span>`;
+                else if (cd.type === CELL.MONKEY_ISLAND)
+                    div.innerHTML = `🏝️<span class="${CSS.MONKEY_ON_ISLAND}">🐒</span>`;
                 else if (cd.type !== CELL.WATER)
                     div.textContent = cd.emoji;
             }
@@ -188,14 +208,14 @@ function updateStatusBar() {
 function showNavPrompt() {
     questionArea.innerHTML =
         `<div class="move-hint">Choose a direction to sail! ⛵</div>` +
-        `<div class="legend">🏠 Home port &nbsp;|&nbsp; 🏝️ Island +3🪙 &nbsp;|&nbsp; 🦑 Monster -1🪙</div>`;
+        `<div class="legend">🏠 Home port &nbsp;|&nbsp; 🏝️ Island +3🪙 &nbsp;|&nbsp; 🦑 Monster -1🪙 &nbsp;|&nbsp; 🦜 Parrot joke! &nbsp;|&nbsp; 🐒 Cheeky monkey!</div>`;
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 function pickDirection(dr, dc) {
     if (gamePhase !== PHASE.NAVIGATING) return;
-    if (document.getElementById(ID.PARROT_POPUP)) return;
+    if (document.getElementById(ID.PARROT_POPUP) || document.getElementById(ID.MONKEY_POPUP)) return;
     const newR = shipRow + dr, newC = shipCol + dc;
     if (newR < 0 || newR >= gridRows || newC < 0 || newC >= gridCols) return;
 
@@ -255,7 +275,7 @@ function checkAnswer(selected, btnEl) {
         const islandKey = `${shipRow},${shipCol}`;
         let coinDelta = 1;
         let cellMsg = '';
-        const isNewIsland = (cell.type === CELL.ISLAND || cell.type === CELL.PARROT_ISLAND) && !visitedIslands.has(islandKey);
+        const isNewIsland = (cell.type === CELL.ISLAND || cell.type === CELL.PARROT_ISLAND || cell.type === CELL.MONKEY_ISLAND) && !visitedIslands.has(islandKey);
 
         if (isNewIsland) {
             visitedIslands.add(islandKey);
@@ -282,6 +302,7 @@ function checkAnswer(selected, btnEl) {
         if (cell.type === CELL.MONSTER) triggerShipKnockback();
         if (isNewIsland) triggerFirework(shipRow, shipCol);
         if (isNewIsland && cell.type === CELL.PARROT_ISLAND) showParrotJoke();
+        if (isNewIsland && cell.type === CELL.MONKEY_ISLAND) showMonkeyMessage();
 
         if (shipRow === portRow && shipCol === portCol) {
             showEndScreen();
@@ -387,6 +408,27 @@ function revealParrotPunchline() {
 
 function dismissParrotJoke() {
     const popup = document.getElementById(ID.PARROT_POPUP);
+    if (popup) popup.remove();
+}
+
+// ── Monkey message popup ──────────────────────────────────────────────────────
+
+function showMonkeyMessage() {
+    const message = MONKEY_MESSAGES[Math.floor(Math.random() * MONKEY_MESSAGES.length)];
+    const overlay = document.createElement('div');
+    overlay.id = ID.MONKEY_POPUP;
+    overlay.innerHTML = `
+        <div id="monkey-popup-inner">
+            <div style="font-size:72px;display:inline-block;animation:ship-bob 0.7s ease-in-out infinite">🐒</div>
+            <div style="font-size:17px;color:#558b2f;font-weight:bold;margin:8px 0">Ooh ooh! A cheeky monkey!</div>
+            <div style="font-size:17px;color:#37474f;margin:12px 0;line-height:1.5">${message}</div>
+            <button class="${CSS.MONKEY_POPUP_BTN}" onclick="dismissMonkeyMessage()">Eww! OK! 🙈</button>
+        </div>`;
+    document.body.appendChild(overlay);
+}
+
+function dismissMonkeyMessage() {
+    const popup = document.getElementById(ID.MONKEY_POPUP);
     if (popup) popup.remove();
 }
 

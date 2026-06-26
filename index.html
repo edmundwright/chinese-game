@@ -211,7 +211,7 @@
         .cell-depleted { opacity: 0.55; }
 
         .grid-cell { position: relative; }
-        .parrot-on-island {
+        .parrot-on-island, .monkey-on-island {
             position: absolute;
             top: 2px; right: 2px;
             font-size: 17px;
@@ -260,6 +260,44 @@
             margin-right: auto;
         }
         .parrot-popup-btn:hover { background: #ffb300; }
+
+        #monkey-popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(20,10,0,0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        #monkey-popup-inner {
+            background: #fffde7;
+            border-radius: 20px;
+            border: 4px solid #8d6e63;
+            padding: 28px 36px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            animation: pop-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 16px 50px rgba(0,0,0,0.5);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        .monkey-popup-btn {
+            margin-top: 16px;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-weight: bold;
+            background: #a5d6a7;
+            border: 2px solid #388e3c;
+            border-radius: 12px;
+            cursor: pointer;
+            color: #1b5e20;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .monkey-popup-btn:hover { background: #81c784; }
 
         /* Compass */
         #compass {
