@@ -542,7 +542,7 @@ function startCumulativeLesson(lessonName, lessonNames) {
     menuArea.style.display = "none";
     gameArea.style.display = "flex";
     subtitle.textContent = `Cumulative Review: ${lessonName}`;
-    const pool = lessonNames.flatMap(name => allLessonsData[name]);
+    const pool = lessonNames.flatMap(name => allLessonsData[name]).filter(q => !q.context);
     initGame(15, pool);
 }
 
